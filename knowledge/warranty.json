@@ -1,0 +1,56 @@
+{
+    "fr": {
+        "duration": "12 mois",
+        "coverage": [
+            "Défauts de fabrication",
+            "Pannes matérielles",
+            "Batterie (si capacité < 80%)",
+            "Écran (pixels morts uniquement)"
+        ],
+        "exclusions": [
+            "Dommages physiques (chutes, chocs)",
+            "Dégâts des eaux",
+            "Oxydation",
+            "Modifications non autorisées",
+            "Usure normale"
+        ],
+        "process": "En cas de problème, contactez-nous avec votre facture. Diagnostic gratuit sous 24-48h.",
+        "contact": "Service après-vente disponible du lundi au samedi, 9h-19h"
+    },
+    "darija": {
+        "duration": "12 chhor",
+        "coverage": [
+            "Mochakil dyal fabrication",
+            "Pannes matérielles",
+            "Batterie (ila capacité < 80%)",
+            "Écran (pixels morts ghir)"
+        ],
+        "exclusions": [
+            "Dommages physiques (t7at, chocs)",
+            "Dégâts des eaux (ma)",
+            "Oxydation (sdaa)",
+            "Modifications machi autorisées",
+            "Usure normale"
+        ],
+        "process": "Ila kan chi mochkil, atsel bina b facture dyalek. Diagnostic gratuit f 24-48 sa3a.",
+        "contact": "SAV khdam mn letnin l sebt, 9h-19h"
+    },
+    "en": {
+        "duration": "12 months",
+        "coverage": [
+            "Manufacturing defects",
+            "Hardware failures",
+            "Battery (if capacity < 80%)",
+            "Screen (dead pixels only)"
+        ],
+        "exclusions": [
+            "Physical damage (drops, shocks)",
+            "Water damage",
+            "Oxidation",
+            "Unauthorized modifications",
+            "Normal wear and tear"
+        ],
+        "process": "In case of issue, contact us with your invoice. Free diagnosis within 24-48h.",
+        "contact": "After-sales service available Monday to Saturday, 9am-7pm"
+    }
+}

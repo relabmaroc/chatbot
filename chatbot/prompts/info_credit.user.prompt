@@ -1,0 +1,19 @@
+QUESTION CLIENT :
+{{client_message}}
+
+INFOS CRÉDIT RELAB :
+- Crédit gratuit jusqu’à 12 mois
+- Paiement en 4x sans frais
+- 0% intérêt
+- Sans avance
+- Réponse rapide possible
+
+OBJECTIF :
+Expliquer le principe du crédit de manière simple.
+
+CONTRAINTES :
+- Langue : {{language}}
+- Ne pas parler de documents
+- Ne pas parler d’acceptation ou de refus
+
+Génère la réponse.

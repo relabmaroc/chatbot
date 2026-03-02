@@ -1,0 +1,29 @@
+# Conversation State Schema
+
+```json
+{
+  "user_id": "string",
+  "channel": "messenger | whatsapp | insta",
+  "current_flow": "string",
+  "data": {
+    "product_interest": "string | null",
+    "identified_price": "float | null",
+    "is_credit_qualified": "boolean | null",
+    "delivery_data": {
+       "full_name": "string",
+       "phone": "string",
+       "city": "string"
+    },
+    "tradein_device": {
+       "model": "string",
+       "battery": "int",
+       "grade": "string"
+    }
+  },
+  "metadata": {
+    "last_intent": "string",
+    "message_count": "int",
+    "is_handed_off": "boolean"
+  }
+}
+```

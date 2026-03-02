@@ -1,0 +1,15 @@
+QUESTION CLIENT :
+{{client_message}}
+
+OBJECTIF :
+Identifier le type de panne ou de problème.
+
+INFOS À COLLECTER (SI MANQUANTES) :
+- Type d’appareil
+- Modèle
+- Problème rencontré
+- L’appareil s’allume ou non
+
+Langue : {{language}}
+
+Génère la réponse.

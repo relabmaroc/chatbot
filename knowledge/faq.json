@@ -1,0 +1,261 @@
+{
+    "fr": [
+        {
+            "question": "Quels sont vos horaires d'ouverture?",
+            "answer": "Nous sommes ouverts du lundi au samedi de 9h à 19h, et le dimanche de 10h à 18h.",
+            "keywords": [
+                "horaire",
+                "ouverture",
+                "heure",
+                "quand",
+                "fermé"
+            ]
+        },
+        {
+            "question": "Où êtes-vous situés?",
+            "answer": "Nos locaux sont situés au: 4, Rue El Yarmouke, Maarif, Casablanca.",
+            "keywords": [
+                "adresse",
+                "localisation",
+                "où",
+                "magasin",
+                "boutique",
+                "casablanca",
+                "maarif"
+            ]
+        },
+        {
+            "question": "Y a-t-il une option de livraison ?",
+            "answer": "Oui, la livraison est disponible partout au Maroc : moins de 2h à Casablanca et moins de 48h partout ailleurs.",
+            "keywords": [
+                "livraison",
+                "livrer",
+                "maroc",
+                "temps",
+                "recevoir"
+            ]
+        },
+        {
+            "question": "Acceptez-vous les paiements par carte?",
+            "answer": "Oui, nous acceptons les paiements par carte bancaire, espèces, et virement. Le crédit est également disponible sous conditions.",
+            "keywords": [
+                "paiement",
+                "carte",
+                "espèces",
+                "virement",
+                "comment payer"
+            ]
+        },
+        {
+            "question": "Puis-je échanger mon produit?",
+            "answer": "Oui, vous avez 7 jours pour échanger votre produit s'il ne vous convient pas, à condition qu'il soit dans son état d'origine avec tous les accessoires.",
+            "keywords": [
+                "échange",
+                "retour",
+                "rembours",
+                "satisfait"
+            ]
+        },
+        {
+            "question": "Les produits occasion premium ont-ils une garantie?",
+            "answer": "Oui, tous nos produits occasion premium bénéficient d'une garantie de 12 mois couvrant les défauts de fabrication et pannes matérielles.",
+            "keywords": [
+                "garantie",
+                "occasion premium",
+                "occasion",
+                "sav"
+            ]
+        },
+        {
+            "id": "credit_general",
+            "category": "finance",
+            "question": "Est-ce que vous proposez le crédit ?",
+            "answer": "Oui, avec BMCI : crédit gratuit (0% sur 6-12 mois), paiement 4x sans frais, ou crédit classique (jusqu'à 84 mois).",
+            "keywords": [
+                "crédit",
+                "financement",
+                "facilité",
+                "paiement plusieurs fois"
+            ]
+        },
+        {
+            "id": "credit_gratuit",
+            "category": "finance",
+            "question": "Comment marche le crédit gratuit ?",
+            "answer": "Crédit 0% intérêt. Montant: 2000-150 000 DH. Durée: 6-12 mois. Frais dossier: 200 DH HT.",
+            "keywords": [
+                "crédit gratuit",
+                "sans intérêt",
+                "0%",
+                "gratuit"
+            ]
+        },
+        {
+            "id": "credit_delai",
+            "category": "finance",
+            "question": "Combien de temps pour avoir une réponse de crédit ?",
+            "answer": "Réponse en 1h dans 80% des cas ! Service ouvert 6j/7 de 8h à 19h.",
+            "keywords": [
+                "temps réponse",
+                "délai crédit",
+                "rapide"
+            ]
+        },
+        {
+            "id": "credit_4_fois",
+            "category": "finance",
+            "question": "C'est quoi le paiement en 4 fois ?",
+            "answer": "Paiement en 4 mois, 0 intérêt, 0 frais de dossier, 0 assurance. Simple et rapide.",
+            "keywords": [
+                "4 fois",
+                "4 mois",
+                "quatre fois"
+            ]
+        }
+    ],
+    "darija": [
+        {
+            "question": "Chnou les horaires dyalkom?",
+            "answer": "Ka nkhdmo mn letnin l sebt mn 9h l 7h lil, w l7ad mn 10h l 6h lil.",
+            "keywords": [
+                "horaire",
+                "waqt",
+                "sa3a",
+                "waqtach",
+                "magloq"
+            ]
+        },
+        {
+            "question": "Fin kayn l7anut?",
+            "answer": "3andna bezzaf dyal les magasins f Maroc. Wa7ed mn l'équipe y9der ygoulik fin l7anut li 9rib mnek.",
+            "keywords": [
+                "adresse",
+                "fin",
+                "fein",
+                "magasin",
+                "7anut"
+            ]
+        },
+        {
+            "question": "Wach kat9blow carte?",
+            "answer": "Ah, ka n9blow carte bancaire, flous cash, w virement. Crédit kayn tani 3la 7sab conditions.",
+            "keywords": [
+                "khlas",
+                "carte",
+                "flous",
+                "virement",
+                "kifach nkhles"
+            ]
+        },
+        {
+            "question": "Wach n9der nbadel produit?",
+            "answer": "Ah, 3andek 7 iyam bach tbadel produit ila ma3jbekch, b chart ykon f 7alo l9dim m3a ga3 les accessoires.",
+            "keywords": [
+                "badel",
+                "retour",
+                "rembours",
+                "ma3jbnich"
+            ]
+        },
+        {
+            "question": "Wach produits occasion premium 3andhom garantie?",
+            "answer": "Ah, ga3 produits occasion premium 3andhom garantie 12 chhor kayghettiw mochakil dyal fabrication w pannes.",
+            "keywords": [
+                "garantie",
+                "occasion premium",
+                "occasion",
+                "sav"
+            ]
+        },
+        {
+            "id": "credit_general",
+            "category": "finance",
+            "question": "Wach 3andkom crédit?",
+            "answer": "Ah, m3a BMCI: crédit gratuit (0% 3la 6-12 chhar), 4x bla frais, ola crédit classique (tal 84 chhar).",
+            "keywords": [
+                "crédit",
+                "financement",
+                "traite",
+                "tayssir"
+            ]
+        },
+        {
+            "id": "credit_gratuit",
+            "category": "finance",
+            "question": "Kifach crédit gratuit?",
+            "answer": "Crédit 0% intérêt. Montant: 2000-150 000 DH. Modda: 6-12 chhar. Frais dossier: 200 DH HT.",
+            "keywords": [
+                "crédit gratuit",
+                "bla riba",
+                "0%",
+                "gratuit"
+            ]
+        },
+        {
+            "id": "credit_delai",
+            "category": "finance",
+            "question": "Ch7al d'wa9t bach 3raftwach t9bel crédit?",
+            "answer": "Dghya! F sa3a (1h) katkon 3andek ljavwab f 80% dyal 7alat. Service 7al 6j/7 mn 8h l 19h.",
+            "keywords": [
+                "waqt",
+                "délai",
+                "kifach n3ref"
+            ]
+        }
+    ],
+    "en": [
+        {
+            "question": "What are your opening hours?",
+            "answer": "We are open Monday to Saturday from 9am to 7pm, and Sunday from 10am to 6pm.",
+            "keywords": [
+                "hours",
+                "opening",
+                "time",
+                "when",
+                "closed"
+            ]
+        },
+        {
+            "question": "Where are you located?",
+            "answer": "We have several stores in Morocco. An advisor can tell you the nearest store to you.",
+            "keywords": [
+                "address",
+                "location",
+                "where",
+                "store",
+                "shop"
+            ]
+        },
+        {
+            "question": "Do you accept card payments?",
+            "answer": "Yes, we accept bank cards, cash, and wire transfers. Credit is also available subject to conditions.",
+            "keywords": [
+                "payment",
+                "card",
+                "cash",
+                "transfer",
+                "how to pay"
+            ]
+        },
+        {
+            "question": "Can I exchange my product?",
+            "answer": "Yes, you have 7 days to exchange your product if it doesn't suit you, provided it's in its original condition with all accessories.",
+            "keywords": [
+                "exchange",
+                "return",
+                "refund",
+                "satisfied"
+            ]
+        },
+        {
+            "question": "Do occasion premium products have a warranty?",
+            "answer": "Yes, all our occasion premium products come with a 12-month warranty covering manufacturing defects and hardware failures.",
+            "keywords": [
+                "warranty",
+                "occasion premium",
+                "used",
+                "support"
+            ]
+        }
+    ]
+}

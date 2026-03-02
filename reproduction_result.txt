@@ -1,0 +1,4 @@
+
+Sending: Bonjour
+Response: Merci pour votre sollicitation. Un conseiller spécialisé va prendre contact avec vous très prochainement pour répondre à votre demande.
+✅ Response seems OK

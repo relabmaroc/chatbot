@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relab Internal Dashboard - Vibe Coding</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --primary: #6366f1;
+            --primary-light: rgba(99, 102, 241, 0.1);
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --sidebar-width: 240px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .header {
+            height: 70px;
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .view-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .date-picker {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .content-area {
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Components */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .kpi-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .kpi-trend {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Table Inbox */
+        .filter-bar {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .select-filter {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            min-width: 140px;
+        }
+
+        .data-table-wrapper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th {
+            padding: 16px 24px;
+            background-color: #f8fafc;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: #f1f5f9;
+            cursor: pointer;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-bot {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .badge-human {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .channel-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Utils */
+        .hidden {
+            display: none !important;
+        }
+
+        .loader {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        /* Specific Views */
+        #view-detail .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            height: calc(100vh - 150px);
+        }
+
+        .chat-timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .bubble-user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bubble-bot {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: var(--text-main);
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border-color);
+        }
+
+        .bubble-human {
+            align-self: flex-start;
+            background: #fff7ed;
+            color: #9a3412;
+            border-bottom-left-radius: 2px;
+            border: 1px solid #ffedd5;
+        }
+
+        .bubble-meta {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        .context-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .data-label {
+            color: var(--text-secondary);
+        }
+
+        .data-value {
+            font-weight: 500;
+        }
+
+        /* VUE D - Insights */
+        .insight-card {
+            border-left: 4px solid var(--primary);
+            transition: all 0.2s;
+        }
+
+        .insight-card:hover {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i data-lucide="antigravity"></i>
+            Relab AI
+        </div>
+        <nav class="nav-menu">
+            <a href="/test" class="nav-item" target="_blank"
+                style="border: 1px solid var(--primary); margin-bottom: 15px; background: var(--primary-light);">
+                <i data-lucide="beaker"></i> <strong>Test Lab (IA)</strong>
+            </a>
+            <a onclick="router.navigate('overview')" class="nav-item active" id="nav-overview">
+                <i data-lucide="layout-dashboard"></i> Overview
+            </a>
+            <a onclick="router.navigate('inbox')" class="nav-item" id="nav-inbox">
+                <i data-lucide="message-square"></i> Inbox
+            </a>
+            <a onclick="router.navigate('insights')" class="nav-item" id="nav-insights">
+                <i data-lucide="sparkles"></i> Insights Social
+            </a>
+        </nav>
+
+        <div style="margin-top: auto;">
+            <div class="nav-item">
+                <i data-lucide="settings"></i> Paramètres
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <header class="header">
+            <div class="view-title" id="header-title">Overview</div>
+            <div class="header-actions">
+                <select class="date-picker">
+                    <option>7 derniers jours</option>
+                    <option selected>30 derniers jours</option>
+                    <option>Cette année</option>
+                    <option>Personnalisé...</option>
+                </select>
+                <div class="nav-item" style="padding: 8px; border: 1px solid var(--border-color);">
+                    <i data-lucide="refresh-cw" size="18"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area" id="view-container">
+            <!-- Dynamic View will be injected here -->
+        </div>
+    </main>
+
+    <!-- TEMPLATES (Hidden in DOM, used by JS) -->
+    <template id="tpl-overview">
+        <div class="kpi-grid">
+            <div class="kpi-card" onclick="router.navigate('inbox')">
+                <div class="kpi-label">Conversations</div>
+                <div class="kpi-value">1,248</div>
+                <div class="kpi-trend trend-up"><i data-lucide="trending-up" size="14"></i> +12%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Taux Bot / Humain</div>
+                <div class="kpi-value">82% / 18%</div>
+                <div class="kpi-trend"><i data-lucide="minus" size="14"></i> Stable</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Intérêt Crédit</div>
+                <div class="kpi-value">42%</div>
+                <div class="kpi-trend trend-up"><i data-lucide="trending-up" size="14"></i> +5%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Top Sujet</div>
+                <div class="kpi-value">iPhone 15 Pro</div>
+                <div class="kpi-trend">21% du volume</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Volume des conversations</div>
+                </div>
+                <canvas id="chart-volume" height="150"></canvas>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Répartition Intentions</div>
+                </div>
+                <canvas id="chart-intent" height="150"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Top Objections</div>
+                </div>
+                <div class="data-table-wrapper" style="box-shadow: none; border: 1px solid var(--border-color);">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Objection</th>
+                                <th>Frequence</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Prix trop élevé</td>
+                                <td>145</td>
+                                <td><span class="trend-up">Fort</span></td>
+                            </tr>
+                            <tr>
+                                <td>Délai livraison</td>
+                                <td>82</td>
+                                <td><span>Moyen</span></td>
+                            </tr>
+                            <tr>
+                                <td>Crédit trop long</td>
+                                <td>45</td>
+                                <td><span class="trend-down">Faible</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Questions fréquentes</div>
+                </div>
+                <ul id="top-questions-list" style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                    <li style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px;">"Quels sont les
+                        documents pour le crédit ?"</li>
+                    <li style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px;">"Où se trouve
+                        votre magasin à Casa ?"</li>
+                    <li style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px;">"Est-ce que
+                        l'iPhone 13 est disponible ?"</li>
+                </ul>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-inbox">
+        <div class="filter-bar">
+            <div class="search-wrapper">
+                <i data-lucide="search" class="search-icon" size="18"></i>
+                <input type="text" class="search-input" placeholder="Rechercher un contact, un message...">
+            </div>
+            <select class="select-filter">
+                <option>Canal: Tous</option>
+                <option>WhatsApp</option>
+                <option>Instagram</option>
+            </select>
+            <select class="select-filter">
+                <option>Intention: Toutes</option>
+                <option>Achat</option>
+                <option>Crédit</option>
+                <option>SAV</option>
+            </select>
+            <select class="select-filter">
+                <option>Statut: Tous</option>
+                <option>Bot</option>
+                <option>Humain</option>
+            </select>
+            <button class="nav-item"
+                style="background: var(--primary); color: white; border: none; height: 40px; border-radius: 8px; padding: 0 20px;">Filtrer</button>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="data-table" id="inbox-table">
+                <thead>
+                    <tr>
+                        <th>Dernier Message</th>
+                        <th>Canal</th>
+                        <th>Contact</th>
+                        <th>Intention</th>
+                        <th>Sujet</th>
+                        <th>Statut</th>
+                        <th>Crédit</th>
+                    </tr>
+                </thead>
+                <tbody id="inbox-tbody">
+                    <!-- Injected by JS -->
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <template id="tpl-detail">
+        <div class="split-layout">
+            <div class="chat-timeline" id="chat-messages">
+                <!-- Messages dynamic -->
+            </div>
+            <div class="context-panel">
+                <div class="info-card">
+                    <div class="info-title">Contexte IA</div>
+                    <div style="font-size: 14px; font-style: italic; color: var(--text-secondary); margin-bottom: 16px;"
+                        id="detail-summary">
+                        Recherche un iPhone 15 Pro, budget serré. Intéressé par reprise de son ancien iPhone 13.
+                    </div>
+                    <div class="data-row"><span class="data-label">Intent</span><span class="data-value"
+                            id="detail-intent">Achat</span></div>
+                    <div class="data-row"><span class="data-label">Produit</span><span class="data-value"
+                            id="detail-product">iPhone 15 Pro</span></div>
+                    <div class="data-row"><span class="data-label">Crédit</span><span class="data-value"
+                            id="detail-credit">OUI</span></div>
+                    <div class="data-row"><span class="data-label">Ville</span><span class="data-value"
+                            id="detail-city">Casablanca</span></div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">Actions Rapides</div>
+                    <button class="nav-item"
+                        style="width: 100%; border: 1px solid var(--border-color); margin-bottom: 8px;">
+                        <i data-lucide="user-plus" size="16"></i> Forcer rappel humain
+                    </button>
+                    <button class="nav-item"
+                        style="width: 100%; border: 1px solid var(--border-color); margin-bottom: 8px;">
+                        <i data-lucide="star" size="16"></i> Marquer Important
+                    </button>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-title">Mémoire Leads</div>
+                    <div id="detail-memory"
+                        style="font-size: 13px; color: var(--text-secondary); background: #f8fafc; padding: 12px; border-radius: 8px;">
+                        { "last_purchase": null, "loyalty_score": 8, "vibe": "enthousiaste" }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-insights">
+        <div class="card-header" style="margin-bottom: 32px;">
+            <h1 style="font-size: 24px;">Contenu Réseaux Sociaux</h1>
+            <button class="nav-item"
+                style="background: var(--primary); color: white; border: none; height: 45px; border-radius: 8px; padding: 0 24px; font-weight: 600;">
+                <i data-lucide="wand-2" size="18"></i> Générer Dossier Brief (AI)
+            </button>
+        </div>
+
+        <div class="chart-grid">
+            <div class="card insight-card">
+                <div class="info-title">Opportunités Reels / Stories</div>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="data-row"
+                        style="padding: 12px; background: #f8fafc; border-radius: 8px; flex-direction: column; gap: 4px;">
+                        <div style="font-weight: 600;">"C'est quoi l'Occasion Premium ?"</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">32 clients posent cette question
+                            cette semaine (+15%).</div>
+                    </div>
+                    <div class="data-row"
+                        style="padding: 12px; background: #f8fafc; border-radius: 8px; flex-direction: column; gap: 4px;">
+                        <div style="font-weight: 600;">"Preuve de livraison à Marrakech"</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Forte hausse des demandes de
+                            rassurance hors Casa.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="info-title">Mix Produits Demandés</div>
+                <canvas id="chart-products-social" height="300"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="info-title">Verbatim "Ce qu'ils disent vraiment"</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+                <blockquote style="padding: 16px; border-left: 2px solid #e2e8f0; font-style: italic; font-size: 14px;">
+                    "J'ai peur de la batterie si c'est pas du neuf, vous changez quoi ?"</blockquote>
+                <blockquote style="padding: 16px; border-left: 2px solid #e2e8f0; font-style: italic; font-size: 14px;">
+                    "Le crédit c'est pour tout le monde ou juste les fonctionnaires ?"</blockquote>
+                <blockquote style="padding: 16px; border-left: 2px solid #e2e8f0; font-style: italic; font-size: 14px;">
+                    "Wach l'iPhone 13 rah disponible maintenant ?"</blockquote>
+            </div>
+        </div>
+    </template>
+
+    <!-- CORE JS -->
+    <script>
+        // REAL DATA HANDLERS
+        let REAL_CONVERSATIONS = [];
+        let ANALYTICS_DATA = null;
+
+        const API_BASE = window.location.origin;
+
+        async function fetchDashboardData() {
+            try {
+                const [convResponse, summaryResponse] = await Promise.all([
+                    fetch(`${API_BASE}/api/dashboard/conversations`),
+                    fetch(`${API_BASE}/analytics/summary`)
+                ]);
+
+                REAL_CONVERSATIONS = await convResponse.json();
+                ANALYTICS_DATA = await summaryResponse.json();
+
+                console.log("Data loaded:", { REAL_CONVERSATIONS, ANALYTICS_DATA });
+            } catch (err) {
+                console.error("Error fetching dashboard data:", err);
+            }
+        }
+
+        // ROUTER SYSTEM
+        const router = {
+            currentView: 'overview',
+            navigate(viewId, params = {}) {
+                this.currentView = viewId;
+
+                // Update UI Navigation
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                const navEl = document.getElementById(`nav-${viewId}`);
+                if (navEl) navEl.classList.add('active');
+
+                // Update Header
+                const titleMap = { 'overview': 'Pilotage Overview', 'inbox': 'Inbox Conversations', 'detail': 'Conversation Detail', 'insights': 'Insights Social Content' };
+                document.getElementById('header-title').innerText = titleMap[viewId] || 'Dashboard';
+
+                // Render Content
+                const container = document.getElementById('view-container');
+                const template = document.getElementById(`tpl-${viewId}`);
+
+                if (template) {
+                    container.innerHTML = '';
+                    container.appendChild(template.content.cloneNode(true));
+                    lucide.createIcons();
+                    this.onViewLoaded(viewId, params);
+                }
+            },
+
+            async onViewLoaded(viewId, params) {
+                if (viewId === 'overview') {
+                    await fetchDashboardData();
+                    this.renderOverview();
+                }
+                if (viewId === 'inbox') {
+                    await fetchDashboardData();
+                    this.renderInbox();
+                }
+                if (viewId === 'detail') {
+                    this.renderDetail(params.id);
+                }
+                if (viewId === 'insights') {
+                    this.initInsightsCharts();
+                }
+            },
+
+            renderOverview() {
+                if (!ANALYTICS_DATA) return;
+
+                // Update KPI values
+                const kpis = document.querySelectorAll('.kpi-value');
+                if (kpis[0]) kpis[0].innerText = ANALYTICS_DATA.total_conversations.toLocaleString();
+                if (kpis[1]) kpis[1].innerText = `${ANALYTICS_DATA.bot_ratio}% / ${ANALYTICS_DATA.human_ratio}%`;
+                if (kpis[2]) kpis[2].innerText = `${ANALYTICS_DATA.credit_interest_ratio}%`;
+
+                // Trends (mocked logic based on real counts)
+                const trends = document.querySelectorAll('.kpi-trend');
+                if (trends[0]) trends[0].innerText = `+${ANALYTICS_DATA.recent_conversations} récents`;
+
+                this.initOverviewCharts();
+            },
+
+            initOverviewCharts() {
+                const ctxVol = document.getElementById('chart-volume').getContext('2d');
+                new Chart(ctxVol, {
+                    type: 'line',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                        datasets: [{
+                            label: 'Conversations',
+                            data: [65, 59, 80, 81, 56, 120, 140],
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                const ctxInt = document.getElementById('chart-intent').getContext('2d');
+                if (ANALYTICS_DATA && ctxInt) {
+                    new Chart(ctxInt, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(ANALYTICS_DATA.leads_by_intent),
+                            datasets: [{
+                                data: Object.values(ANALYTICS_DATA.leads_by_intent).length ? Object.values(ANALYTICS_DATA.leads_by_intent) : [1],
+                                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444']
+                            }]
+                        },
+                        options: { responsive: true, cutout: '70%' }
+                    });
+                }
+            },
+
+            renderInbox() {
+                const tbody = document.getElementById('inbox-tbody');
+                tbody.innerHTML = '';
+
+                if (REAL_CONVERSATIONS.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Aucune conversation réelle trouvée dans la base de données.</td></tr>';
+                    return;
+                }
+
+                REAL_CONVERSATIONS.forEach(convo => {
+                    const dateObj = new Date(convo.date);
+                    const dateStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    const tr = document.createElement('tr');
+                    tr.onclick = () => this.navigate('detail', { id: convo.id });
+                    tr.innerHTML = `
+                        <td>Today ${dateStr}</td>
+                        <td class="channel-icon"><i data-lucide="${convo.channel === 'whatsapp' ? 'phone' : convo.channel}" size="14"></i> ${convo.channel}</td>
+                        <td>${convo.contact}</td>
+                        <td><span class="badge badge-bot">${convo.intent}</span></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${convo.topic}</td>
+                        <td><span class="badge ${convo.status === 'bot' ? 'badge-bot' : 'badge-human'}">${convo.status}</span></td>
+                        <td><span class="${convo.credit === 'OUI' ? 'trend-up' : ''}">${convo.credit}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                lucide.createIcons();
+            },
+
+            async renderDetail(id) {
+                const convo = REAL_CONVERSATIONS.find(c => c.id === id);
+                if (!convo) return;
+
+                // Set Header
+                document.getElementById('header-title').innerText = `Conversation avec ${convo.contact}`;
+
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = '<div class="loader"><i data-lucide="loader-2" class="animate-spin" size="24"></i></div>';
+                lucide.createIcons();
+
+                try {
+                    const response = await fetch(`${API_BASE}/conversations/${id}`);
+                    const data = await response.json();
+
+                    container.innerHTML = '';
+                    data.messages.forEach(msg => {
+                        const dateObj = new Date(msg.created_at);
+                        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                        const bubble = document.createElement('div');
+                        bubble.className = `chat-bubble bubble-${msg.sender}`;
+                        bubble.innerHTML = `
+                            ${msg.content}
+                            <div class="bubble-meta">${timeStr}</div>
+                        `;
+                        container.appendChild(bubble);
+                    });
+                    container.scrollTop = container.scrollHeight;
+
+                    // Set Intelligence Panel
+                    document.getElementById('detail-intent').innerText = data.conversation.intent_type || "N/A";
+                    document.getElementById('detail-product').innerText = data.conversation.monetization_score > 0 ? "Potential User" : "Visitor";
+                    document.getElementById('detail-credit').innerText = data.conversation.estimated_value ? `${data.conversation.estimated_value} MAD` : "0 MAD";
+
+                } catch (err) {
+                    console.error("Error loading messages:", err);
+                    container.innerHTML = '<div style="color: red; padding: 20px;">Erreur de chargement des messages.</div>';
+                }
+
+                // Add click events to actions
+                const actions = document.querySelectorAll('#view-detail button');
+                if (actions[0]) actions[0].onclick = () => this.handleForceHuman(convo.contact);
+                if (actions[1]) actions[1].onclick = () => alert('Conversation marquée comme importante !');
+            },
+
+            handleForceHuman(contact) {
+                if (confirm(`Voulez-vous forcer le transfert vers un humain pour ${contact} ?`)) {
+                    alert('Transfert en cours... Un conseiller a été notifié sur WhatsApp.');
+                }
+            },
+
+            handleGenerateBrief() {
+                const btn = document.querySelector('button[data-lucide="wand-2"]')?.parentElement;
+                if (btn) {
+                    btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin" size="18"></i> Génération...';
+                    lucide.createIcons();
+                }
+
+                setTimeout(() => {
+                    alert(`BRIEF CONTENU SOCIAL - RELAB\n\n1. REEL : "L'iPhone 15 Pro est-il vraiment comme neuf ?" (Basé sur 120 mentions)\n2. STORY : FAQ Documents Crédit (Salarié vs Commerçant)\n3. POST : Pourquoi nous livrons à Marrakech en 48h chrono.`);
+                    if (btn) {
+                        btn.innerHTML = '<i data-lucide="wand-2" size="18"></i> Générer Dossier Brief (AI)';
+                        lucide.createIcons();
+                    }
+                }, 1500);
+            },
+
+            initInsightsCharts() {
+                // Add event to button
+                const briefBtn = document.querySelector('button[data-lucide="wand-2"]')?.parentElement;
+                if (briefBtn) briefBtn.onclick = () => this.handleGenerateBrief();
+
+                const ctx = document.getElementById('chart-products-social').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['iPhone 15 Pro', 'iPhone 13', 'iPhone 15', 'MacBook Air'],
+                        datasets: [{
+                            label: 'Mentions',
+                            data: [120, 95, 70, 45],
+                            backgroundColor: '#6366f1'
+                        }]
+                    },
+                    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+                });
+            }
+        };
+
+        // Initialize Lucide and App
+        window.onload = () => {
+            lucide.createIcons();
+            router.navigate('overview');
+        };
+    </script>
+</body>
+
+</html>

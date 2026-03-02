@@ -1,0 +1,15 @@
+QUESTION CLIENT :
+{{client_message}}
+
+INFOS RELAB :
+- Adresse : 4, rue El Yarmouke, Maarif, Casablanca
+- Livraison Casablanca : moins de 2 heures
+- Livraison Maroc : moins de 48 heures
+- Retrait en magasin possible
+
+OBJECTIF :
+Informer clairement le client.
+
+Langue : {{language}}
+
+Génère la réponse.

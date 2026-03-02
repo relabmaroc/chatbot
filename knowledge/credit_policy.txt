@@ -1,0 +1,38 @@
+LE FINANCEMENT CHEZ RELAB - POLITIQUE DE CREDIT
+
+Relab propose des solutions de financement en partenariat avec BMCI, permettant aux clients d'acheter leurs appareils plus facilement.
+
+1. DELAIS ET CONDITIONS DE TRAITEMENT
+- Réponse définitive : en 1 heure (80% des cas)
+- Disponibilité : 6j/7, de 8h à 19h
+- Paiement : effectué sous 48h une fois le dossier accepté
+
+2. TYPES DE FINANCEMENT
+
+A. Crédit Gratuit (0% Intérêt)
+- Montant : 2 000 à 150 000 DH
+- Durée : 6 à 12 mois
+- Mensualité min : 150 DH
+- Frais de dossier : 200 DH HT
+- Intérêts : 0 DH (pris en charge par Relab & BMCI)
+- Idéal pour : Étaler le paiement sans surcoût.
+
+B. Paiement en 4 fois sans frais
+- Durée : 4 mois
+- Intérêts : 0 DH
+- Frais de dossier : 0 DH
+- Assurance : 0 DH
+- Idéal pour : Achats de courte durée, simple et rapide.
+
+C. Crédit Classique
+- Montant : 5 000 à 150 000 DH
+- Durée : 6 à 84 mois
+- Mensualité min : 150 DH
+- Inclus : Assurance décès/invalidité
+- Frais confirmation : 40 DH
+- Idéal pour : Gros projets nécessitant une longue durée (mensualités réduites).
+
+3. RÈGLES IMPORTANTES (A RESPECTER PAR LE CHATBOT)
+- Ne jamais promettre l'acceptation (décision bancaire).
+- Si le client veut déposer un dossier -> Handoff Humain.
+- Si le client demande des calculs complexes -> Handoff Humain.

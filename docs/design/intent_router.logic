@@ -1,0 +1,29 @@
+# Intent Router Logic (Pseudo-code)
+
+```python
+def handle_message(message, history):
+    # 1. Detect Intent using LLM
+    intent_data = llm.detect_intent(intent_detector.prompt, message, history)
+    
+    # 2. Extract context from State
+    state = db.get_state(user_id)
+    
+    # 3. Business Routing
+    if intent_data.intent == "commande" and not state.product_selected:
+        # User wants to buy but hasn't picked a product
+        intent_data.intent = "product_info" 
+        
+    if intent_data.intent == "achat" and state.product_selected:
+        # Move to order if price is confirmed
+        if any(w in message for w in ["ok", "d'accord", "prends"]):
+             intent_data.intent = "commande"
+    
+    # 4. Trigger Backend Action
+    backend_data = execute_backend_service(intent_data.intent, intent_data.entities)
+    
+    # 5. Generate Response
+    system_p = load_file(f"chatbot/prompts/{intent_data.intent}.system.prompt")
+    user_p = load_file(f"chatbot/prompts/{intent_data.intent}.user.prompt")
+    
+    return llm.generate_response(system_p, user_p, backend_data)
+```

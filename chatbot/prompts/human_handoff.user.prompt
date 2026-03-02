@@ -1,0 +1,10 @@
+RAISON DU TRANSFERT :
+{{reason}}
+(ex: demande spécifique, cas complexe, client insistant)
+
+OBJECTIF :
+Faire une transition claire vers un conseiller humain.
+
+Langue : {{language}}
+
+Génère la réponse.

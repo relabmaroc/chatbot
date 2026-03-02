@@ -1,0 +1,21 @@
+QUESTION CLIENT :
+{{client_message}}
+
+SITUATION CLIENT :
+{{client_profile}}
+(ex: salarié sans CNSS, freelance, crédit en cours, etc.)
+
+CRITÈRES GÉNÉRAUX À EXPLIQUER :
+- Revenus stables
+- Justificatifs professionnels
+- Situation bancaire correcte
+
+ALTERNATIVE RELAB :
+- Paiement en 4x sans frais
+
+OBJECTIF :
+Rassurer sans promettre, expliquer sans exclure.
+
+Langue : {{language}}
+
+Génère la réponse.

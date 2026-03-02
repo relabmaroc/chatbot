@@ -1,0 +1,17 @@
+PRODUIT CONFIRMÉ :
+- Modèle : {{product_name}}
+- Prix : {{price}} MAD
+
+MODE DE PAIEMENT :
+{{payment_method}}
+
+OPTIONS LOGISTIQUES :
+- Retrait magasin (Maarif, Casablanca)
+- Livraison à domicile (Casa < 2h / Maroc < 48h)
+
+OBJECTIF :
+Finaliser la commande et collecter le choix logistique.
+
+Langue : {{language}}
+
+Génère la réponse.

@@ -1,0 +1,20 @@
+QUESTION CLIENT :
+{{client_message}}
+
+DOCUMENTS GÉNÉRALEMENT DEMANDÉS :
+- Carte d’Identité Nationale (CIN)
+- Justificatif d’adresse récent
+- Déclaration CNSS ou attestation de travail
+- 3 derniers relevés bancaires
+- Spécimen de chèque ou RIB (selon profil)
+
+INFO IMPORTANTE :
+- Les documents servent à monter le dossier
+- La décision finale dépend de l’organisme partenaire
+
+OBJECTIF :
+Informer sans rassurer à tort.
+
+Langue : {{language}}
+
+Génère la réponse.

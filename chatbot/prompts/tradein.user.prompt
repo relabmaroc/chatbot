@@ -1,0 +1,17 @@
+QUESTION CLIENT :
+{{client_message}}
+
+INFOS À COLLECTER (ÉTAPE ACTUELLE) :
+{{current_step}}
+(ex: modèle, stockage, état)
+
+INFO RELAB :
+- Estimation rapide et rachat cash possible sous 24h.
+- Large choix de modèles plus performants pour un échange immédiat.
+
+OBJECTIF :
+Faire avancer l’estimation et proposer un upgrade vers un modèle plus puissant si pertinent.
+
+Langue : {{language}}
+
+Génère la réponse.

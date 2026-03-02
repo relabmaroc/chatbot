@@ -1,0 +1,19 @@
+QUESTION CLIENT :
+{{client_message}}
+
+INFOS PRODUIT (RELÀB) :
+- Catégorie : {{category}}
+- Modèle : {{product_name}}
+- Prix : {{price}} MAD
+- État : Occasion premium
+- Garantie : {{warranty_duration}}
+- Stock : {{availability}}
+
+OBJECTIF :
+Informer clairement le client sur le produit demandé.
+
+CONTRAINTES :
+- Message court
+- Langue : {{language}}
+
+Génère la réponse à envoyer au client.

@@ -1,0 +1,14 @@
+QUESTION CLIENT :
+{{client_message}}
+
+INFOS DISPONIBLES :
+- Produit concerné : {{product_name}}
+- Date d’achat : {{purchase_date}}
+- Garantie : {{warranty_status}}
+
+OBJECTIF :
+Comprendre le problème et rassurer le client.
+
+Langue : {{language}}
+
+Génère la réponse.

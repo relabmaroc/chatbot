@@ -1,0 +1,21 @@
+CONTEXTE CLIENT :
+{{client_context}}
+
+PRODUIT D’INTÉRÊT :
+- Modèle : {{product_name}}
+- Prix : {{price}} MAD
+- État : Occasion premium
+- Garantie : {{warranty_duration}}
+
+OBJECTIF :
+Faire avancer vers une décision d’achat
+(cash ou exploration du crédit si le client hésite).
+
+CONTRAINTES :
+- Ne pas répéter une info déjà donnée
+- Langue : {{language}}
+- INTERDICTION DE SIMULER LE CLIENT
+- NE PAS INVENTER LA SUITE DE LA CONVERSATION
+- ARRÊTE-TOI APRÈS AVOIR POSÉ LA QUESTION
+
+Génère la réponse à envoyer au client.

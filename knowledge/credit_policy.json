@@ -1,0 +1,131 @@
+{
+    "fr": {
+        "available": true,
+        "min_amount": 3000,
+        "max_duration_months": 12,
+        "interest_rate": "0% (Gratuit) jusqu'à 12 mois",
+        "conditions": [
+            "Carte d'Identité Nationale (CIN) valide",
+            "Quittance récente de téléphone ou d'électricité (Justificatif de domicile)",
+            "Spécimen de chèque ou attestation de RIB",
+            "3 derniers relevés bancaires",
+            "Fiche signalétique complétée",
+            "Domiciliation au Maroc",
+            "Âge minimum: 21 ans"
+        ],
+        "documents_required": {
+            "communs": [
+                "CIN recto-verso",
+                "Quittance de téléphone ou d'électricité",
+                "RIB / Spécimen de chèque",
+                "3 derniers relevés bancaires",
+                "Fiche Signalétique (FS)"
+            ],
+            "par_categorie": {
+                "Salariés": [
+                    "2 derniers bulletins de salaire",
+                    "Attestation de travail récente",
+                    "Déclaration CNSS"
+                ],
+                "Fonctionnaires": [
+                    "État d'engagement récent ou attestation de salaire"
+                ],
+                "Retraités": [
+                    "2 derniers avis de paiement de pension"
+                ],
+                "Non-salariés (Prof. Libérale)": [
+                    "Carte professionnelle",
+                    "Dernier avis d'imposition de la patente"
+                ],
+                "Commerçants": [
+                    "Modèle J récent du registre du commerce (< 3 mois)"
+                ]
+            }
+        },
+        "process": [
+            "Envoi de tous les documents par e-mail à credit.relab@gmail.com",
+            "Validation du dossier en moins de 24 heures",
+            "Déplacement dans nos locaux avec les originaux pour signature du contrat et récupération de l'appareil"
+        ],
+        "approval_time": "Moins de 24 heures",
+        "contact_info": "Envoyez vos documents à credit.relab@gmail.com. Nos bureaux: 4, Rue El Yarmouke, Maarif, Casablanca."
+    },
+    "darija": {
+        "available": true,
+        "min_amount": 3000,
+        "max_duration_months": 12,
+        "interest_rate": "0% (Gratui) 7ta l 12 chhar",
+        "conditions": [
+            "CIN valide",
+            "Justificatif de revenu (bulletin de salaire wla attestation)",
+            "0 avance (Bla acompte)",
+            "Saken f Maroc",
+            "3andek 21 3am wla ktar"
+        ],
+        "documents_required": [
+            "CIN recto-verso",
+            "3 chhor lwakhrin dyal relevé bancaire",
+            "Justificatif de domicile",
+            "RIB bancaire / Spécimen de chèque",
+            "Fiche Signalétique (FS)"
+        ],
+        "payment_options": [
+            {
+                "duration": 4,
+                "interest": 0,
+                "description": "4 chhor bla frais"
+            },
+            {
+                "duration": 6,
+                "interest": 0,
+                "description": "6 chhor bla frais"
+            },
+            {
+                "duration": 12,
+                "interest": 0,
+                "description": "12 chhor bla frais"
+            }
+        ],
+        "approval_time": "24 sa3a",
+        "contact_info": "Bach t3ref ktar 3la crédit gratuit, wa7ed mn l'équipe ghadi yatsel bik."
+    },
+    "en": {
+        "available": true,
+        "min_amount": 3000,
+        "max_duration_months": 12,
+        "interest_rate": "0% (Free) up to 12 months",
+        "conditions": [
+            "Valid national ID card (CIN)",
+            "Proof of income (salary slip or certificate)",
+            "0 down payment required",
+            "Residence in Morocco",
+            "Minimum age: 21 years"
+        ],
+        "documents_required": [
+            "ID card (both sides)",
+            "Last 3 bank statements",
+            "Proof of address",
+            "Bank account details (RIB/Check specimen)",
+            "Signalyeting Form (FS)"
+        ],
+        "payment_options": [
+            {
+                "duration": 4,
+                "interest": 0,
+                "description": "4 monthly payments, no fees"
+            },
+            {
+                "duration": 6,
+                "interest": 0,
+                "description": "6 monthly payments, no fees"
+            },
+            {
+                "duration": 12,
+                "interest": 0,
+                "description": "12 monthly payments, no fees"
+            }
+        ],
+        "approval_time": "24 hours",
+        "contact_info": "For more information about free credit, an advisor will contact you."
+    }
+}
