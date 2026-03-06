@@ -38,7 +38,13 @@ async def send_instagram_message(recipient_id: str, text: str):
         logger.error("❌ Instagram access token not configured")
         return
 
-    url = f"https://graph.facebook.com/v18.0/me/messages?access_token={settings.instagram_access_token}"
+    # Use the standard Graph API endpoint for messages
+    url = "https://graph.facebook.com/v18.0/me/messages"
+    
+    headers = {
+        "Authorization": f"Bearer {settings.instagram_access_token}",
+        "Content-Type": "application/json"
+    }
     
     payload = {
         "recipient": {"id": recipient_id},
@@ -47,13 +53,14 @@ async def send_instagram_message(recipient_id: str, text: str):
     
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.post(url, json=payload)
+            response = await client.post(url, json=payload, headers=headers)
+            if response.status_code != 200:
+                logger.error(f"❌ Error sending Instagram message: {response.status_code} {response.text}")
+            else:
+                logger.info(f"📤 Sent Instagram message to {recipient_id}")
             response.raise_for_status()
-            logger.info(f"📤 Sent Instagram message to {recipient_id}")
         except Exception as e:
-            logger.error(f"❌ Error sending Instagram message: {e}")
-            if response:
-                logger.error(f"Response: {response.text}")
+            logger.error(f"❌ Exception in send_instagram_message: {e}")
 
 def extract_instagram_message(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """

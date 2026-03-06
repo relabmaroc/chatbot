@@ -2,7 +2,7 @@
 Relab Commercial Chatbot - FastAPI Application
 Backend-first chatbot for revenue generation
 """
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -351,46 +351,57 @@ async def instagram_verification(request: Request):
     return await verify_instagram_webhook(request)
 
 
+async def process_instagram_task(data: dict, db: Session):
+    """
+    Background task to process Instagram message without blocking Meta
+    """
+    try:
+        # Create chat request
+        chat_req = ChatRequest(
+            message=data['text'],
+            identifier=data['sender_id'],
+            channel="instagram",
+            metadata=data['metadata']
+        )
+        
+        # Process through chatbot logic (can take 30s+)
+        logger.info(f"🔄 Processing Instagram message from {data['sender_id']} in background")
+        response = await chat_service.process_message(chat_req, db)
+        
+        # Send reply back to Instagram
+        if response.message:
+            await send_instagram_message(data['sender_id'], response.message)
+        else:
+            logger.info(f"🤫 Silent mode: No reply sent to Instagram user {data['sender_id']}")
+    except Exception as e:
+        logger.error(f"❌ Error in Instagram background task: {e}")
+
 @app.post("/webhook/instagram")
 async def instagram_webhook(
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     """
-    Handle Incoming Instagram Messages
+    Handle Incoming Instagram Messages (Async)
     """
     try:
         payload = await request.json()
-        logger.info(f"📩 Received Instagram Webhook: {payload}")
+        logger.info(f"📩 Received Instagram Webhook: {payload.get('object')}")
         
         # Extract message data
         data = extract_instagram_message(payload)
         
         if data:
-            # Create chat request
-            chat_req = ChatRequest(
-                message=data['text'],
-                identifier=data['sender_id'],
-                channel="instagram",
-                metadata=data['metadata']
-            )
-            
-            # Process through chatbot logic
-            logger.info(f"🔄 Processing Instagram message from {data['sender_id']}")
-            response = await chat_service.process_message(chat_req, db)
-            
-            # Send reply back to Instagram ONLY if message is not None
-            if response.message:
-                await send_instagram_message(data['sender_id'], response.message)
-            else:
-                logger.info(f"🤫 Silent mode: No reply sent to Instagram user {data['sender_id']}")
+            # Launch background task and return 200 immediately
+            background_tasks.add_task(process_instagram_task, data, db)
+            return {"status": "accepted", "message": "processing in background"}
             
         return {"status": "ok"}
         
     except Exception as e:
-        logger.error(f"❌ Error processing Instagram webhook: {e}")
-        # Always return 200 to Meta/Facebok even on error to prevent retry storms
-        return {"status": "error", "detail": str(e)}
+        logger.error(f"❌ Error receiving Instagram webhook: {e}")
+        return {"status": "ok"} # Still 200 for Meta
 
 # ==========================================
 # WHATSAPP INTEGRATION
@@ -401,38 +412,46 @@ async def whatsapp_verification(request: Request):
     """Handle WhatsApp Webhook Verification"""
     return await verify_whatsapp_webhook(request)
 
+async def process_whatsapp_task(data: dict, db: Session):
+    """
+    Background task to process WhatsApp message
+    """
+    try:
+        chat_req = ChatRequest(
+            message=data['text'],
+            identifier=data['sender_id'],
+            channel="whatsapp",
+            metadata=data['metadata']
+        )
+        
+        logger.info(f"🔄 Processing WhatsApp message from {data['sender_id']} in background")
+        response = await chat_service.process_message(chat_req, db)
+        
+        if response.message:
+            await send_whatsapp_message(data['sender_id'], response.message)
+    except Exception as e:
+        logger.error(f"❌ Error in WhatsApp background task: {e}")
+
 @app.post("/webhook/whatsapp")
 async def whatsapp_webhook(
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Handle Incoming WhatsApp Messages"""
+    """Handle Incoming WhatsApp Messages (Async)"""
     try:
         payload = await request.json()
-        logger.info(f"📩 Received WhatsApp Webhook: {payload}")
+        logger.info(f"📩 Received WhatsApp Webhook")
         
         data = extract_whatsapp_message(payload)
         
         if data:
-            chat_req = ChatRequest(
-                message=data['text'],
-                identifier=data['sender_id'],
-                channel="whatsapp",
-                metadata=data['metadata']
-            )
-            
-            logger.info(f"🔄 Processing WhatsApp message from {data['sender_id']}")
-            response = await chat_service.process_message(chat_req, db)
-            
-            if response.message:
-                await send_whatsapp_message(data['sender_id'], response.message)
-            else:
-                logger.info(f"🤫 Silent mode: No reply sent to WhatsApp user {data['sender_id']}")
+            background_tasks.add_task(process_whatsapp_task, data, db)
             
         return {"status": "ok"}
     except Exception as e:
-        logger.error(f"❌ Error processing WhatsApp webhook: {e}")
-        return {"status": "error"}
+        logger.error(f"❌ Error receiving WhatsApp webhook: {e}")
+        return {"status": "ok"}
 
 # ==========================================
 # EMAIL INTEGRATION
