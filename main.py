@@ -104,6 +104,79 @@ async def health_check():
         "llm": "configured"
     }
 
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy_policy():
+    """Legal-grade Privacy Policy for Meta Live Approval"""
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Politique de Confidentialité - RE-LAB</title>
+        <style>
+            body { font-family: -apple-system, system-ui, sans-serif; line-height: 1.6; color: #1a1a1a; max-width: 800px; margin: 0 auto; padding: 40px 20px; background-color: #fdfdfd; }
+            .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #eee; }
+            h1 { font-size: 28px; color: #000; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+            h2 { font-size: 20px; color: #2c3e50; margin-top: 35px; margin-bottom: 15px; }
+            p, li { font-size: 16px; color: #444; margin-bottom: 12px; }
+            .contact-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #3498db; margin-top: 25px; }
+            .footer { margin-top: 50px; font-size: 14px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+            .highlight { color: #e74c3c; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>Politique de Confidentialité Re-Lab</h1>
+            <p><em>Dernière mise à jour : 6 mars 2026</em></p>
+            
+            <p>Chez <strong>RE-LAB</strong>, nous accordons une importance capitale à la protection de vos données personnelles. Cette politique détaille comment nous traitons vos informations via nos intégrations Meta (Instagram et WhatsApp).</p>
+
+            <h2>1. Responsable du Traitement</h2>
+            <p>Le service de Chatbot est opéré par <strong>RE-LAB MAROC</strong>, domicilié au Maroc, spécialiste des solutions technologiques premium.</p>
+
+            <h2>2. Données Collectées</h2>
+            <p>Nous collectons uniquement les données strictement nécessaires à l'expérience de chatbot :</p>
+            <ul>
+                <li><strong>Identifiants de plateforme :</strong> User ID Instagram / Numéro de téléphone WhatsApp.</li>
+                <li><strong>Profil :</strong> Nom d'affichage (si public).</li>
+                <li><strong>Contenu :</strong> Historique de vos échanges avec l'assistant IA pour assurer la continuité du service.</li>
+            </ul>
+
+            <h2>3. Utilisation des Données</h2>
+            <p>Vos données servent exclusivement à :</p>
+            <ul>
+                <li>Fournir des réponses précises sur nos produits (iPhone, accessoires).</li>
+                <li>Qualifier vos demandes de crédit ou de reprise de matériel.</li>
+                <li>Transmettre votre demande à un conseiller humain si vous le souhaitez.</li>
+            </ul>
+
+            <h2>4. <span class="highlight">Droit de Suppression (DPA)</span></h2>
+            <p>Conformément aux exigences de Meta, vous avez le droit de demander la suppression totale de vos données à tout moment :</p>
+            <ul>
+                <li><strong>Par Email :</strong> Envoyez votre demande à <a href="mailto:contact@relab.ma">contact@relab.ma</a>.</li>
+                <li><strong>Par Chat :</strong> Tapez simplement "Oublier mes données" ou "Supprimer mon compte" dans la conversation.</li>
+            </ul>
+            <p>Votre demande sera traitée sous 48 heures ouvrées.</p>
+
+            <h2>5. Conservation et Partage</h2>
+            <p>Les données sont conservées pendant un maximum de 12 mois. Nous ne partageons, ne vendons et ne louons vos données à aucune tierce partie à des fins marketing ou publicitaires.</p>
+
+            <div class="contact-box">
+                <strong>Contact Support :</strong><br>
+                Email : contact@relab.ma<br>
+                Web : <a href="https://relab.ma">www.relab.ma</a>
+            </div>
+
+            <div class="footer">
+                &copy; 2026 RE-LAB MAROC - Tous droits réservés.
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return html_content
+
 
 @app.get("/dashboard.html", response_class=HTMLResponse)
 async def get_dashboard():
@@ -535,48 +608,7 @@ async def messenger_webhook(
         return {"status": "ok"}
     except Exception as e:
         logger.error(f"❌ Error processing Messenger webhook: {e}")
-        return {"status": "error"}
-
-
-@app.get("/privacy", response_class=HTMLResponse)
-async def privacy_policy():
-    """Serve the privacy policy page for Meta verification"""
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Politique de Confidentialité - ReLab Chatbot</title>
-        <style>
-            body { font-family: -apple-system, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 40px 20px; background-color: #f9f9f9; }
-            .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-            h1 { color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-            h2 { color: #2c3e50; margin-top: 30px; }
-            .footer { margin-top: 50px; font-size: 0.9em; color: #777; border-top: 1px solid #eee; padding-top: 20px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Politique de Confidentialité ReLab Chatbot</h1>
-            <p>Dernière mise à jour : 6 mars 2026</p>
-            <p>Bienvenue sur le service Chatbot de <strong>ReLab</strong>. La protection de vos données personnelles est une priorité absolue.</p>
-            <h2>1. Responsable du traitement</h2>
-            <p>Le responsable du traitement des données est <strong>ReLab Maroc</strong>.</p>
-            <h2>2. Données collectées via les API Meta</h2>
-            <p>Nous collectons vos identifiants de plateforme (ID Instagram, numéro WhatsApp) et le contenu de vos messages pour répondre à vos demandes.</p>
-            <h2>3. Finalité</h2>
-            <p>Gestion automatisée de la relation client et mise en relation avec un conseiller humain.</p>
-            <h2>4. Conservation</h2>
-            <p>Les données sont conservées pendant 12 mois maximum.</p>
-            <h2>5. Vos droits et Contact</h2>
-            <p>Vous disposez d'un droit d'accès et de suppression. Contact : <strong>contact@relab.ma</strong></p>
-            <div class="footer">&copy; 2026 ReLab Maroc - Tous droits réservés.</div>
-        </div>
-    </body>
-    </html>
-    """
-    return html_content
+    return {"status": "ok"}
 
 
 if __name__ == "__main__":
