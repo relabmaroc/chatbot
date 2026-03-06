@@ -370,6 +370,7 @@ async def process_instagram_task(data: dict, db: Session):
         
         # Send reply back to Instagram
         if response.message:
+            logger.info(f"🚀 [PYTHON-SEND] Sending reply to Instagram: {response.message[:50]}...")
             await send_instagram_message(data['sender_id'], response.message)
         else:
             logger.info(f"🤫 Silent mode: No reply sent to Instagram user {data['sender_id']}")
@@ -428,6 +429,7 @@ async def process_whatsapp_task(data: dict, db: Session):
         response = await chat_service.process_message(chat_req, db)
         
         if response.message:
+            logger.info(f"🚀 [PYTHON-SEND] Sending reply to WhatsApp: {response.message[:50]}...")
             await send_whatsapp_message(data['sender_id'], response.message)
     except Exception as e:
         logger.error(f"❌ Error in WhatsApp background task: {e}")
