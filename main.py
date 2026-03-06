@@ -538,6 +538,17 @@ async def messenger_webhook(
         return {"status": "error"}
 
 
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy_policy():
+    """Serve the privacy policy page for Meta verification"""
+    try:
+        with open("templates/privacy.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        logger.error(f"Error serving privacy policy: {e}")
+        return "Politique de confidentialité ReLab. Pour toute demande, contactez notre support."
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
