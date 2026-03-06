@@ -113,7 +113,7 @@ async def privacy_policy():
     """Legal-grade Privacy Policy for Meta Live Approval"""
     html_content = """
     <!DOCTYPE html>
-    <html lang="fr">
+    <html lang="fr" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,6 +125,7 @@ async def privacy_policy():
         <meta property="og:image" content="https://chatbot-production-9a92.up.railway.app/static/logo.png" />
         <meta property="og:url" content="https://chatbot-production-9a92.up.railway.app/privacy" />
         <meta property="og:type" content="website" />
+        <meta property="og:locale" content="fr_FR" />
         <meta property="fb:app_id" content="1120227289524022" />
         
         <style>
