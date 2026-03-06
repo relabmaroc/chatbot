@@ -541,12 +541,42 @@ async def messenger_webhook(
 @app.get("/privacy", response_class=HTMLResponse)
 async def privacy_policy():
     """Serve the privacy policy page for Meta verification"""
-    try:
-        with open("templates/privacy.html", "r", encoding="utf-8") as f:
-            return f.read()
-    except Exception as e:
-        logger.error(f"Error serving privacy policy: {e}")
-        return "Politique de confidentialité ReLab. Pour toute demande, contactez notre support."
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Politique de Confidentialité - ReLab Chatbot</title>
+        <style>
+            body { font-family: -apple-system, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 40px 20px; background-color: #f9f9f9; }
+            .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+            h1 { color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+            h2 { color: #2c3e50; margin-top: 30px; }
+            .footer { margin-top: 50px; font-size: 0.9em; color: #777; border-top: 1px solid #eee; padding-top: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Politique de Confidentialité ReLab Chatbot</h1>
+            <p>Dernière mise à jour : 6 mars 2026</p>
+            <p>Bienvenue sur le service Chatbot de <strong>ReLab</strong>. La protection de vos données personnelles est une priorité absolue.</p>
+            <h2>1. Responsable du traitement</h2>
+            <p>Le responsable du traitement des données est <strong>ReLab Maroc</strong>.</p>
+            <h2>2. Données collectées via les API Meta</h2>
+            <p>Nous collectons vos identifiants de plateforme (ID Instagram, numéro WhatsApp) et le contenu de vos messages pour répondre à vos demandes.</p>
+            <h2>3. Finalité</h2>
+            <p>Gestion automatisée de la relation client et mise en relation avec un conseiller humain.</p>
+            <h2>4. Conservation</h2>
+            <p>Les données sont conservées pendant 12 mois maximum.</p>
+            <h2>5. Vos droits et Contact</h2>
+            <p>Vous disposez d'un droit d'accès et de suppression. Contact : <strong>contact@relab.ma</strong></p>
+            <div class="footer">&copy; 2026 ReLab Maroc - Tous droits réservés.</div>
+        </div>
+    </body>
+    </html>
+    """
+    return html_content
 
 
 if __name__ == "__main__":
