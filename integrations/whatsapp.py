@@ -38,7 +38,7 @@ async def send_whatsapp_message(recipient_id: str, text: str):
         logger.error("❌ WhatsApp configuration incomplete")
         return
 
-    url = f"https://graph.facebook.com/v22.0/{settings.whatsapp_phone_number_id}/messages"
+    url = f"https://graph.facebook.com/v25.0/{settings.whatsapp_phone_number_id}/messages"
     
     headers = {
         "Authorization": f"Bearer {settings.whatsapp_access_token}",
