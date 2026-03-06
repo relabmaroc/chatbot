@@ -69,21 +69,39 @@ def extract_instagram_message(payload: Dict[str, Any]) -> Optional[Dict[str, Any
     """
     try:
         entry = payload.get('entry', [])[0]
-        messaging = entry.get('messaging', [])[0]
-        
-        sender_id = messaging.get('sender', {}).get('id')
-        message = messaging.get('message', {})
-        text = message.get('text')
-        
-        if sender_id and text:
-            return {
-                "sender_id": sender_id,
-                "text": text,
-                "metadata": {
-                    "message_id": message.get('mid'),
-                    "timestamp": messaging.get('timestamp')
-                }
-            }
+      # Handle messaging entry
+        if 'messaging' in entry:
+            messaging = entry['messaging'][0]
+            sender_id = messaging['sender']['id']
+            recipient_id = messaging['recipient']['id']  # Should be the Page/Bot ID
+            
+            logger.info(f"📍 Instagram IDs - Sender: {sender_id}, Recipient (Bot): {recipient_id}")
+            
+            if 'message' in messaging:
+                message_obj = messaging['message']
+                
+                # VERY IMPORTANT: Ignore echo messages (messages sent by the bot)
+                if message_obj.get('is_echo') or sender_id == recipient_id:
+                    logger.info("📍 Ignoring echo message (bot's own message)")
+                    return None
+                    
+                # Ignore deleted messages or unsupported types (like only attachments)
+                if message_obj.get('is_deleted'):
+                    return None
+                    
+                message_text = message_obj.get('text', '')
+                
+                # Only process if there is actual text
+                if message_text:
+                    return {
+                        'sender_id': sender_id,
+                        'recipient_id': recipient_id,
+                        'text': message_text,
+                        'metadata': {
+                            'mid': message_obj.get('mid'),
+                            'platform': 'instagram'
+                        }
+                    }
             
     except (IndexError, AttributeError) as e:
         logger.debug(f"Could not extract message from payload: {e}")
