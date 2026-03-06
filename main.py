@@ -4,6 +4,7 @@ Backend-first chatbot for revenue generation
 """
 from fastapi import FastAPI, Depends, HTTPException, Request, BackgroundTasks
 from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
@@ -74,6 +75,9 @@ async def global_exception_handler(request: Request, exc: Exception):
         )
 
 
+# Static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -114,6 +118,14 @@ async def privacy_policy():
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Politique de Confidentialité - RE-LAB</title>
+        
+        <!-- Open Graph / Meta Protocol requirements -->
+        <meta property="og:title" content="Politique de Confidentialité - RE-LAB" />
+        <meta property="og:description" content="Découvrez comment Re-Lab protège vos données personnelles sur Instagram et WhatsApp." />
+        <meta property="og:image" content="https://chatbot-production-9a92.up.railway.app/static/logo.png" />
+        <meta property="og:url" content="https://chatbot-production-9a92.up.railway.app/privacy" />
+        <meta property="og:type" content="website" />
+        
         <style>
             body { font-family: -apple-system, system-ui, sans-serif; line-height: 1.6; color: #1a1a1a; max-width: 800px; margin: 0 auto; padding: 40px 20px; background-color: #fdfdfd; }
             .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #eee; }
