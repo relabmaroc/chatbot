@@ -68,8 +68,13 @@ def extract_whatsapp_message(payload: Dict[str, Any]) -> Optional[Dict[str, Any]
     Extract relevant message data from WhatsApp webhook payload
     """
     try:
-        # WhatsApp payload structure is different from Instagram
         value = payload.get('entry', [])[0].get('changes', [])[0].get('value', {})
+        
+        # VERY IMPORTANT: Ignore status messages (sent, delivered, read) to prevent echo loops
+        if 'statuses' in value:
+            logger.info(f"📍 Ignoring WhatsApp status update: {value['statuses'][0].get('status')}")
+            return None
+            
         messages = value.get('messages', [])
         
         if not messages:
@@ -77,18 +82,23 @@ def extract_whatsapp_message(payload: Dict[str, Any]) -> Optional[Dict[str, Any]
             
         message = messages[0]
         sender_id = message.get('from') # Phone number
-        text = message.get('text', {}).get('body')
         
-        if sender_id and text:
-            return {
-                "sender_id": sender_id,
-                "text": text,
-                "metadata": {
-                    "message_id": message.get('id'),
-                    "timestamp": message.get('timestamp'),
-                    "display_phone_number": value.get('metadata', {}).get('display_phone_number')
+        # Handle text messages
+        if message.get('type') == 'text':
+            text = message.get('text', {}).get('body')
+            
+            logger.info(f"📍 WhatsApp IDs - Sender: {sender_id}, Recipient Phone: {value.get('metadata', {}).get('display_phone_number')}")
+            
+            if sender_id and text:
+                return {
+                    "sender_id": sender_id,
+                    "text": text,
+                    "metadata": {
+                        "message_id": message.get('id'),
+                        "timestamp": message.get('timestamp'),
+                        "display_phone_number": value.get('metadata', {}).get('display_phone_number')
+                    }
                 }
-            }
             
     except (IndexError, AttributeError) as e:
         logger.debug(f"Could not extract WhatsApp message: {e}")
