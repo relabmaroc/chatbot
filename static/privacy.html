@@ -4,124 +4,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Politique de Confidentialité - RE-LAB</title>
-    <!-- Open Graph tags required by Meta -->
-    <meta property="og:title" content="Politique de Confidentialité - RE-LAB" />
-    <meta property="og:description"
-        content="Découvrez comment Re-Lab protège vos données personnelles sur Instagram et WhatsApp." />
-    <meta property="og:image" content="https://chatbot-production-9a92.up.railway.app/static/logo.png" />
-    <meta property="og:url" content="https://chatbot-production-9a92.up.railway.app/privacy" />
+    <title>Confidentialité & Données - RE-LAB</title>
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Politique de Confidentialité - RE-LAB" />
+    <meta name="description"
+        content="Engagement de Re-Lab Maroc pour la protection de vos données personnelles sur Instagram et WhatsApp." />
+
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://chatbot-production-9a92.up.railway.app/privacy" />
+    <meta property="og:title" content="Politique de Confidentialité - RE-LAB" />
+    <meta property="og:description" content="Découvrez comment Re-Lab protège vos échanges sur nos canaux officiels." />
+    <meta property="og:image" content="https://chatbot-production-9a92.up.railway.app/static/logo.png" />
+    <meta property="og:site_name" content="RE-LAB Maroc" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <!-- App ID -->
     <meta property="fb:app_id" content="1120227289524022" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            font-family: -apple-system, system-ui, sans-serif;
-            line-height: 1.6;
-            color: #1a1a1a;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background: #fdfdfd;
+        :root {
+            --primary: #000;
+            --accent: #2c3e50;
+            --text: #1a1a1a;
+            --bg: #f8faff;
+            --glass: rgba(255, 255, 255, 0.8);
         }
 
-        .card {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border: 1px solid #eee;
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            background-image: radial-gradient(circle at 0% 0%, #e0e7ff 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, #fef3c7 0%, transparent 40%);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header-badges {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background: #000;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .badge.verified {
+            background: #10b981;
         }
 
         h1 {
-            font-size: 28px;
-            color: #000;
+            font-size: 42px;
+            font-weight: 600;
             margin-bottom: 30px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 15px;
+            letter-spacing: -1px;
         }
 
         h2 {
-            font-size: 20px;
-            color: #2c3e50;
-            margin-top: 35px;
-            margin-bottom: 15px;
+            font-size: 24px;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 24px;
+            background: #000;
+            border-radius: 4px;
         }
 
         p,
         li {
-            font-size: 16px;
-            color: #444;
-            margin-bottom: 12px;
+            font-size: 17px;
+            color: #4b5563;
+            font-weight: 300;
         }
 
-        .contact-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
-            margin-top: 25px;
+        ul {
+            padding-left: 20px;
+        }
+
+        strong {
+            font-weight: 600;
+            color: #000;
+        }
+
+        .cta-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            margin-top: 40px;
+        }
+
+        .contact-btn {
+            display: inline-block;
+            background: #000;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-weight: 500;
         }
 
         .footer {
-            margin-top: 50px;
-            font-size: 14px;
-            color: #999;
+            margin-top: 80px;
             text-align: center;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
+            font-size: 14px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 30px;
         }
 
-        .highlight {
-            color: #e74c3c;
-            font-weight: bold;
+        @media (max-width: 640px) {
+            .container {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="card">
-        <h1>Politique de Confidentialité Re-Lab</h1>
-        <p><em>Dernière mise à jour : 6 mars 2026</em></p>
-        <p>Chez <strong>RE-LAB</strong>, nous accordons une importance capitale à la protection de vos données
-            personnelles. Cette politique détaille nos pratiques conformément aux exigences de Meta (Instagram et
-            WhatsApp).</p>
-        <h2>1. Responsable du Traitement</h2>
-        <p>Le service de Chatbot est opéré par <strong>RE-LAB MAROC</strong>, domicilié au Maroc, spécialiste des
-            solutions technologiques premium.</p>
-        <h2>2. Données Collectées</h2>
-        <p>Nous collectons uniquement les données strictement nécessaires à l'expérience de chatbot :</p>
-        <ul>
-            <li><strong>Identifiants de plateforme :</strong> User ID Instagram / Numéro de téléphone WhatsApp.</li>
-            <li><strong>Profil :</strong> Nom d'affichage (si public).</li>
-            <li><strong>Contenu :</strong> Historique de vos échanges avec l'assistant IA pour assurer la continuité du
-                service.</li>
-        </ul>
-        <h2>3. Utilisation des Données</h2>
-        <p>Vos données servent exclusivement à :</p>
-        <ul>
-            <li>Fournir des réponses précises sur nos produits (iPhone, accessoires).</li>
-            <li>Qualifier vos demandes de crédit ou de reprise de matériel.</li>
-            <li>Transmettre votre demande à un conseiller humain si vous le souhaitez.</li>
-        </ul>
-        <h2>4. <span class="highlight">Droit de Suppression (DPA)</span></h2>
-        <p>Conformément aux exigences de Meta, vous avez le droit de demander la suppression totale de vos données à
-            tout moment :</p>
-        <ul>
-            <li><strong>Par Email :</strong> Envoyez votre demande à <a
-                    href="mailto:contact@relab.ma">contact@relab.ma</a>.</li>
-            <li><strong>Par Chat :</strong> Tapez simplement "Oublier mes données" ou "Supprimer mon compte" dans la
-                conversation.</li>
-        </ul>
-        <p>Votre demande sera traitée sous 48 heures ouvrées.</p>
-        <h2>5. Conservation et Partage</h2>
-        <p>Les données sont conservées pendant un maximum de 12 mois. Nous ne partageons, ne vendons et ne louons vos
-            données à aucune tierce partie à des fins marketing ou publicitaires.</p>
-        <div class="contact-box">
-            <strong>Contact Support :</strong><br>
-            Email : contact@relab.ma<br>
-            Web : <a href="https://relab.ma">www.relab.ma</a>
+    <div class="container">
+        <div class="header-badges">
+            <span class="badge">Relab Maroc</span>
+            <span class="badge verified">Meta Compliant</span>
         </div>
-        <div class="footer">&copy; 2026 RE-LAB MAROC - Tous droits réservés.</div>
+
+        <h1>Protection de vos données privées</h1>
+        <p>Dernière mise à jour : 8 mars 2026</p>
+
+        <p>Chez <strong>RE-LAB</strong>, nous transformons l'expérience technologique au Maroc. La confiance est le
+            socle de notre relation, c'est pourquoi nous appliquons des standards de confidentialité rigoureux pour nos
+            services de chatbot.</p>
+
+        <h2>1. Engagement Transparence</h2>
+        <p>Notre chatbot ne collecte que les données essentielles pour vous servir. Nous agissons en tant que
+            <strong>Responsable de Traitement</strong> pour les données échangées via Instagram Direct et WhatsApp Cloud
+            API.</p>
+
+        <h2>2. Données & Finalités</h2>
+        <ul>
+            <li><strong>Identification :</strong> Identifiants techniques de plateforme pour maintenir la continuité de
+                vos demandes.</li>
+            <li><strong>Service :</strong> Historique des échanges pour vous conseiller sur nos iPhones, accessoires et
+                services de reprise.</li>
+            <li><strong>Qualification :</strong> Informations fournies volontairement pour vos dossiers de crédit ou de
+                trade-in.</li>
+        </ul>
+
+        <h2>3. Conservation Limitée</h2>
+        <p>Nous ne gardons rien inutilement. Vos données conversationnelles sont conservées pendant un maximum de
+            <strong>12 mois</strong>.</p>
+
+        <h2>4. Contrôle Total</h2>
+        <ul>
+            <li><strong>Suppression Instantanée :</strong> Envoyez "Supprimer mes données" dans la discussion.</li>
+            <li><strong>Email :</strong> <a href="mailto:contact@relab.ma">contact@relab.ma</a></li>
+        </ul>
+
+        <div class="cta-card">
+            <strong>Une question sur vos données ?</strong><br>
+            <a href="mailto:contact@relab.ma" class="contact-btn">Contacter le DPO</a>
+        </div>
+
+        <div class="footer">
+            &copy; 2026 RE-LAB MAROC.
+        </div>
     </div>
 </body>
 
