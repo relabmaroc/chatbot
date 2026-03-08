@@ -217,8 +217,8 @@ class ChatService:
                     else:
                         response_text = f"Binsebba l {last_prod}, 3ndna les coques MagSafe w les chargeurs rapides! Bghiti t3ref l-prix?"
                     
-                    self._save_message(db, request.conversation_id, "assistant", response_text, None, effective_intent_type)
-                    return ChatResponse(message=response_text, conversation_id=request.conversation_id, intent=intent, metadata=qualification_data.dict())
+                    self._save_message(db, conversation.id, "assistant", response_text, None, effective_intent_type)
+                    return ChatResponse(message=response_text, conversation_id=conversation.id, intent=intent, metadata=qualification_data.dict())
 
             # Step 4: LLM Enrichment (Optional)
             # 1. Regex Extraction
@@ -310,10 +310,10 @@ class ChatService:
             if objection_response:
                 # If it's an objection, we manually override the flow for one turn
                 # We stay in ACTIVE status
-                self._save_message(db, request.conversation_id, "assistant", objection_response, None, effective_intent_type)
+                self._save_message(db, conversation.id, "assistant", objection_response, None, effective_intent_type)
                 return ChatResponse(
                     message=objection_response,
-                    conversation_id=request.conversation_id,
+                    conversation_id=conversation.id,
                     intent=intent,
                     metadata=qualification_data.dict()
                 )
@@ -748,7 +748,7 @@ class ChatService:
             logger.error(f"Error in process_message: {e}", exc_info=True)
             return ChatResponse(
                 message="Désolé, une erreur technique est survenue.",
-                conversation_id=request.conversation_id,
+                conversation_id=conversation.id if 'conversation' in locals() and conversation else (request.conversation_id or "error-fallback"),
                 intent=None,
                 should_handoff=False
             )
