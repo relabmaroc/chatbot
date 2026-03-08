@@ -492,7 +492,8 @@
                     <option>Cette année</option>
                     <option>Personnalisé...</option>
                 </select>
-                <div class="nav-item" style="padding: 8px; border: 1px solid var(--border-color);">
+                <div class="nav-item" style="padding: 8px; border: 1px solid var(--border-color);"
+                    onclick="router.onViewLoaded(router.currentView)">
                     <i data-lucide="refresh-cw" size="18"></i>
                 </div>
             </div>
@@ -508,23 +509,23 @@
         <div class="kpi-grid">
             <div class="kpi-card" onclick="router.navigate('inbox')">
                 <div class="kpi-label">Conversations</div>
-                <div class="kpi-value">1,248</div>
-                <div class="kpi-trend trend-up"><i data-lucide="trending-up" size="14"></i> +12%</div>
+                <div class="kpi-value">0</div>
+                <div class="kpi-trend trend-up"><i data-lucide="trending-up" size="14"></i> ...</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">Taux Bot / Humain</div>
-                <div class="kpi-value">82% / 18%</div>
+                <div class="kpi-value">100% / 0%</div>
                 <div class="kpi-trend"><i data-lucide="minus" size="14"></i> Stable</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">Intérêt Crédit</div>
-                <div class="kpi-value">42%</div>
-                <div class="kpi-trend trend-up"><i data-lucide="trending-up" size="14"></i> +5%</div>
+                <div class="kpi-value">0%</div>
+                <div class="kpi-trend trend-up"><i data-lucide="trending-up" size="14"></i> ...</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">Top Sujet</div>
-                <div class="kpi-value">iPhone 15 Pro</div>
-                <div class="kpi-trend">21% du volume</div>
+                <div class="kpi-value">N/A</div>
+                <div class="kpi-trend">Volumes réels</div>
             </div>
         </div>
 
@@ -559,19 +560,10 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Prix trop élevé</td>
-                                <td>145</td>
-                                <td><span class="trend-up">Fort</span></td>
-                            </tr>
-                            <tr>
-                                <td>Délai livraison</td>
-                                <td>82</td>
-                                <td><span>Moyen</span></td>
-                            </tr>
-                            <tr>
-                                <td>Crédit trop long</td>
-                                <td>45</td>
-                                <td><span class="trend-down">Faible</span></td>
+                                <td colspan="3"
+                                    style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                                    Analyses en attente de données...
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -582,12 +574,10 @@
                     <div class="card-title">Questions fréquentes</div>
                 </div>
                 <ul id="top-questions-list" style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
-                    <li style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px;">"Quels sont les
-                        documents pour le crédit ?"</li>
-                    <li style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px;">"Où se trouve
-                        votre magasin à Casa ?"</li>
-                    <li style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px;">"Est-ce que
-                        l'iPhone 13 est disponible ?"</li>
+                    <li
+                        style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px; color: var(--text-secondary);">
+                        En attente de vos premiers messages clients...
+                    </li>
                 </ul>
             </div>
         </div>
