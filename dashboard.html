@@ -806,23 +806,37 @@
                 if (kpis[0]) kpis[0].innerText = ANALYTICS_DATA.total_conversations.toLocaleString();
                 if (kpis[1]) kpis[1].innerText = `${ANALYTICS_DATA.bot_ratio}% / ${ANALYTICS_DATA.human_ratio}%`;
                 if (kpis[2]) kpis[2].innerText = `${ANALYTICS_DATA.credit_interest_ratio}%`;
+                if (kpis[3]) kpis[3].innerText = ANALYTICS_DATA.top_subject || "N/A";
 
                 // Trends (mocked logic based on real counts)
                 const trends = document.querySelectorAll('.kpi-trend');
                 if (trends[0]) trends[0].innerText = `+${ANALYTICS_DATA.recent_conversations} récents`;
+
+                // Update real questions
+                const qList = document.getElementById('top-questions-list');
+                if (qList && ANALYTICS_DATA.recent_questions && ANALYTICS_DATA.recent_questions.length > 0) {
+                    qList.innerHTML = ANALYTICS_DATA.recent_questions.map(q =>
+                        `<li style="font-size: 14px; padding: 10px; background: #f8fafc; border-radius: 8px;">"${q}"</li>`
+                    ).join('');
+                }
 
                 this.initOverviewCharts();
             },
 
             initOverviewCharts() {
                 const ctxVol = document.getElementById('chart-volume').getContext('2d');
+
+                // Real labels and data from API
+                const labels = ANALYTICS_DATA.daily_volume.map(d => d.day);
+                const data = ANALYTICS_DATA.daily_volume.map(d => d.count);
+
                 new Chart(ctxVol, {
                     type: 'line',
                     data: {
-                        labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                        labels: labels,
                         datasets: [{
                             label: 'Conversations',
-                            data: [65, 59, 80, 81, 56, 120, 140],
+                            data: data,
                             borderColor: '#6366f1',
                             backgroundColor: 'rgba(99, 102, 241, 0.1)',
                             fill: true,

@@ -482,6 +482,25 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
     # Credit interest rate
     credit_interest = db.query(func.count(Conversation.id)).filter(Conversation.extra_data.contains({"credit_interest": True})).scalar() or 0
     credit_ratio = int((credit_interest / total_conversations * 100)) if total_conversations > 0 else 0
+    daily_volume = []
+    for i in range(6, -1, -1):
+        day = (datetime.utcnow() - timedelta(days=i)).date()
+        count = db.query(func.count(Conversation.id)).filter(
+            func.date(Conversation.created_at) == day
+        ).scalar() or 0
+        daily_volume.append({"day": day.strftime("%a"), "count": count})
+
+    # Top products (from extra_data)
+    # Note: Using a simple count here for the demonstration, real extraction from JSON would be more complex
+    # but we can approximate from intent_type if it matches PRODUCTS
+    top_products = db.query(
+        Conversation.intent_type,
+        func.count(Conversation.id)
+    ).filter(Conversation.intent_type != None).group_by(Conversation.intent_type).order_by(func.count(Conversation.id).desc()).limit(3).all()
+
+    # Recent questions (last 5 unique user messages)
+    recent_qs = db.query(Message.content).filter(Message.sender == "user").order_by(Message.created_at.desc()).limit(10).all()
+    unique_qs = list(set([q[0] for q in recent_qs if len(q[0]) > 10]))[:5]
 
     return {
         "total_conversations": total_conversations,
@@ -494,7 +513,10 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
         "bot_ratio": bot_ratio,
         "human_ratio": 100 - bot_ratio,
         "credit_interest_ratio": credit_ratio,
-        "conversion_rate": (total_leads / total_conversations * 100) if total_conversations > 0 else 0
+        "conversion_rate": (total_leads / total_conversations * 100) if total_conversations > 0 else 0,
+        "daily_volume": daily_volume,
+        "top_subject": top_products[0][0] if top_products else "N/A",
+        "recent_questions": unique_qs
     }
 
 
