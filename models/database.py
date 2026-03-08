@@ -144,28 +144,30 @@ class Analytics(Base):
 # Database setup - ensure the scheme is correct for different providers
 db_url = settings.database_url
 
-# Handle PostgreSQL name variations
+# 1. Handle PostgreSQL name variations
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-# Handle Turso (libsql)
-elif db_url.startswith("libsql://"):
-    # Convert libsql:// to sqlite+libsql:// for SQLAlchemy compatibility
-    base_url = db_url.replace("libsql://", "", 1)
-    db_url = f"sqlite+libsql://{base_url}"
+# 2. Handle Turso (libsql)
+elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
+    # Extract the clean hostname/host without the protocol
+    # If it was https://host, replace, then if it was libsql://host, replace
+    raw_host = db_url
+    for proto in ["libsql://", "https://"]:
+        raw_host = raw_host.replace(proto, "", 1)
     
-    # Add auth_token if provided (cleanly)
+    # Ensure HOST only (strip paths/queries if any)
+    base_host = raw_host.split("?")[0].split("/")[0]
+    
+    # Reconstruct as sqlite+libsql://[host] (mandatory for sqlalchemy-libsql)
+    db_url = f"sqlite+libsql://{base_host}"
+    
+    # 3. Add auth_token if provided
     if settings.database_auth_token:
         # Avoid double tokens if already present in URL
         if "authToken=" not in db_url and "auth_token=" not in db_url:
             separator = "&" if "?" in db_url else "?"
-            # Force simplified URL for Turso AWS nodes
             db_url = f"{db_url}{separator}authToken={settings.database_auth_token}"
-    
-    # Debug log (masking the token)
-    clean_url = db_url.split("authToken=")[0] + "authToken=***"
-    import logging
-    logging.getLogger(__name__).info(f"🔌 Connecting to DB with: {clean_url}")
 
 # Engine creation
 is_sqlite_based = "sqlite" in db_url.lower()
@@ -183,6 +185,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
     """Initialize database tables"""
+    # Debug log inside here because logging is configured AFTER import in main.py
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    clean_url = db_url.split("authToken=")[0] + "authToken=***" if "authToken=" in db_url else db_url
+    logger.info(f"🔌 Connecting to DB with: {clean_url}")
+    
     Base.metadata.create_all(bind=engine)
 
 

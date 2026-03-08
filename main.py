@@ -9,18 +9,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
 import logging
-
-from models.database import init_db, get_db
-from models.schemas import ChatRequest, ChatResponse
-# chat_service import moved down
-from config import settings
-
-# Configure logging
+import os
+log_level = os.environ.get("LOG_LEVEL", "INFO")
 logging.basicConfig(
-    level=getattr(logging, settings.log_level),
+    level=getattr(logging, log_level),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+from models.database import init_db, get_db
 
 # Import services after logging is configured
 from services.chat_service import chat_service
