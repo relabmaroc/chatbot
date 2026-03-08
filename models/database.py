@@ -157,9 +157,9 @@ elif db_url.startswith("libsql://"):
     # Add auth_token if provided (cleanly)
     if settings.database_auth_token:
         # Avoid double tokens if already present in URL
-        if "auth_token=" not in db_url:
+        if "authToken=" not in db_url and "auth_token=" not in db_url:
             separator = "&" if "?" in db_url else "?"
-            db_url = f"{db_url}{separator}auth_token={settings.database_auth_token}"
+            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}"
 
 # Engine creation
 is_sqlite_based = "sqlite" in db_url.lower()
