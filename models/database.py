@@ -159,7 +159,13 @@ elif db_url.startswith("libsql://"):
         # Avoid double tokens if already present in URL
         if "authToken=" not in db_url and "auth_token=" not in db_url:
             separator = "&" if "?" in db_url else "?"
-            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}"
+            # Force secure=true for Turso AWS nodes
+            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}&secure=true"
+    
+    # Debug log (masking the token)
+    clean_url = db_url.split("authToken=")[0] + "authToken=***"
+    import logging
+    logging.getLogger(__name__).info(f"🔌 Connecting to DB with: {clean_url}")
 
 # Engine creation
 is_sqlite_based = "sqlite" in db_url.lower()
