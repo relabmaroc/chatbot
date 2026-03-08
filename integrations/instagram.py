@@ -69,6 +69,10 @@ def extract_instagram_messages(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
     """
     extracted_messages = []
     try:
+        # Debug log for the full raw payload (truncated for safety)
+        # item_str = str(payload)[:500]
+        # logger.info(f"DEBUG RAW WEBHOOK: {item_str}")
+        
         entries = payload.get('entry', [])
         for entry in entries:
             messaging_events = entry.get('messaging', [])
@@ -76,32 +80,42 @@ def extract_instagram_messages(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
                 sender_id = messaging.get('sender', {}).get('id')
                 recipient_id = messaging.get('recipient', {}).get('id')
                 
+                logger.info(f"📍 Event received - From: {sender_id} To: {recipient_id}")
+                
                 if 'message' in messaging:
                     message_obj = messaging['message']
+                    mid = message_obj.get('mid')
                     
-                    # Ignore echoes
+                    # Ignore echoes (messages sent by the bot)
                     if message_obj.get('is_echo') or sender_id == recipient_id:
+                        logger.info(f"📍 Ignoring echo message {mid}")
                         continue
                         
                     # Ignore deleted
                     if message_obj.get('is_deleted'):
+                        logger.info(f"📍 Ignoring deleted message {mid}")
                         continue
                         
                     message_text = message_obj.get('text', '')
                     
                     if message_text and sender_id:
+                        logger.info(f"✅ Extracted Instagram text: '{message_text[:20]}...' from {sender_id}")
                         extracted_messages.append({
                             'sender_id': sender_id,
                             'recipient_id': recipient_id,
                             'text': message_text,
                             'metadata': {
-                                'mid': message_obj.get('mid'),
+                                'mid': mid,
                                 'platform': 'instagram',
                                 'timestamp': messaging.get('timestamp')
                             }
                         })
+                    else:
+                        logger.info(f"📍 Event has no text or sender: {messaging}")
+                else:
+                    logger.info(f"📍 Event is not a 'message': {list(messaging.keys())}")
             
     except Exception as e:
-        logger.error(f"❌ Error extracting Instagram messages: {e}")
+        logger.error(f"❌ Error extracting Instagram messages: {e}", exc_info=True)
         
     return extracted_messages
