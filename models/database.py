@@ -141,14 +141,27 @@ class Analytics(Base):
     extra_data = Column(JSON, default={})
 
 
-# Database setup - ensure the scheme is postgresql even if Railway provides postgres
+# Database setup - ensure the scheme is correct for different providers
 db_url = settings.database_url
+
+# Handle PostgreSQL name variations
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
+# Handle Turso (libsql)
+elif db_url.startswith("libsql://"):
+    # Convert libsql:// to sqlite+libsql://
+    db_url = db_url.replace("libsql://", "sqlite+libsql://", 1)
+    # Add auth_token if provided
+    if settings.database_auth_token:
+        if "?" in db_url:
+            db_url += f"&auth_token={settings.database_auth_token}"
+        else:
+            db_url += f"?auth_token={settings.database_auth_token}"
+
 engine = create_engine(
     db_url,
-    connect_args={"check_same_thread": False} if "sqlite" in db_url else {},
+    connect_args={"check_same_thread": False} if "sqlite" in db_url.lower() else {},
     pool_pre_ping=True,      # Check connection before using
     pool_recycle=3600,       # Recycle connections every hour
 )

@@ -16,3 +16,5 @@ google-auth-httplib2==0.2.0
 watchfiles==0.21.0
 gunicorn==21.2.0
 psycopg2-binary==2.9.9
+libsql-client==0.4.9
+sqlalchemy-libsql==0.2.0

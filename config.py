@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     
     # Database Configuration
     database_url: str = "sqlite:///./chatbot.db"
+    database_auth_token: Optional[str] = None
     
     # Application Configuration
     app_env: str = "development"
