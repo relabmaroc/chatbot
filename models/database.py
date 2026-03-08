@@ -159,8 +159,8 @@ elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
     # Ensure HOST only (strip paths/queries if any)
     base_host = raw_host.split("?")[0].split("/")[0]
     
-    # Reconstruct as sqlite+libsql://[host] (mandatory for sqlalchemy-libsql)
-    db_url = f"sqlite+libsql://{base_host}"
+    # Reconstruct as sqlite+libsql://https://[host] (mandatory for some versions of sqlalchemy-libsql on AWS)
+    db_url = f"sqlite+libsql://https://{base_host}"
     
     # 3. Add auth_token if provided
     if settings.database_auth_token:
