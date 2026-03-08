@@ -63,44 +63,43 @@ async def send_whatsapp_message(recipient_id: str, text: str):
             if 'response' in locals():
                 logger.error(f"Response: {response.text}")
 
-def extract_whatsapp_message(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def extract_whatsapp_messages(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
     """
-    Extract relevant message data from WhatsApp webhook payload
+    Extract all relevant messages from WhatsApp webhook payload
+    Returns list of dicts with 'sender_id', 'text', 'metadata'
     """
+    extracted_messages = []
     try:
-        value = payload.get('entry', [])[0].get('changes', [])[0].get('value', {})
+        entries = payload.get('entry', [])
+        for entry in entries:
+            changes = entry.get('changes', [])
+            for change in changes:
+                value = change.get('value', {})
+                metadata = value.get('metadata', {})
+                
+                # Ignore status updates
+                if 'statuses' in value:
+                    continue
+                    
+                messages = value.get('messages', [])
+                for msg in messages:
+                    sender_id = msg.get('from')
+                    
+                    if msg.get('type') == 'text' and sender_id:
+                        text = msg.get('text', {}).get('body')
+                        if text:
+                            extracted_messages.append({
+                                "sender_id": sender_id,
+                                "text": text,
+                                "metadata": {
+                                    "message_id": msg.get('id'),
+                                    "timestamp": msg.get('timestamp'),
+                                    "display_phone_number": metadata.get('display_phone_number'),
+                                    "platform": "whatsapp"
+                                }
+                            })
+                            
+    except Exception as e:
+        logger.error(f"❌ Error extracting WhatsApp messages: {e}")
         
-        # VERY IMPORTANT: Ignore status messages (sent, delivered, read) to prevent echo loops
-        if 'statuses' in value:
-            logger.info(f"📍 Ignoring WhatsApp status update: {value['statuses'][0].get('status')}")
-            return None
-            
-        messages = value.get('messages', [])
-        
-        if not messages:
-            return None
-            
-        message = messages[0]
-        sender_id = message.get('from') # Phone number
-        
-        # Handle text messages
-        if message.get('type') == 'text':
-            text = message.get('text', {}).get('body')
-            
-            logger.info(f"📍 WhatsApp IDs - Sender: {sender_id}, Recipient Phone: {value.get('metadata', {}).get('display_phone_number')}")
-            
-            if sender_id and text:
-                return {
-                    "sender_id": sender_id,
-                    "text": text,
-                    "metadata": {
-                        "message_id": message.get('id'),
-                        "timestamp": message.get('timestamp'),
-                        "display_phone_number": value.get('metadata', {}).get('display_phone_number')
-                    }
-                }
-            
-    except (IndexError, AttributeError) as e:
-        logger.debug(f"Could not extract WhatsApp message: {e}")
-        
-    return None
+    return extracted_messages

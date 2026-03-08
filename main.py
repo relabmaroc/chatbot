@@ -526,12 +526,12 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
 
 from integrations.instagram import (
     verify_instagram_webhook,
-    extract_instagram_message,
+    extract_instagram_messages,
     send_instagram_message
 )
 from integrations.whatsapp import (
     verify_whatsapp_webhook,
-    extract_whatsapp_message,
+    extract_whatsapp_messages,
     send_whatsapp_message
 )
 from integrations.email import (
@@ -540,7 +540,7 @@ from integrations.email import (
 )
 from integrations.messenger import (
     verify_messenger_webhook,
-    extract_messenger_message,
+    extract_messenger_messages,
     send_messenger_message
 )
 
@@ -592,12 +592,11 @@ async def instagram_webhook(
         logger.info(f"📩 Received Instagram Webhook: {payload.get('object')}")
         
         # Extract message data
-        data = extract_instagram_message(payload)
+        messages_data = extract_instagram_messages(payload)
         
-        if data:
+        for data in messages_data:
             # Launch background task and return 200 immediately
             background_tasks.add_task(process_instagram_task, data, db)
-            return {"status": "accepted", "message": "processing in background"}
             
         return {"status": "ok"}
         
@@ -646,9 +645,9 @@ async def whatsapp_webhook(
         payload = await request.json()
         logger.info(f"📩 Received WhatsApp Webhook")
         
-        data = extract_whatsapp_message(payload)
+        messages_data = extract_whatsapp_messages(payload)
         
-        if data:
+        for data in messages_data:
             background_tasks.add_task(process_whatsapp_task, data, db)
             
         return {"status": "ok"}
@@ -715,9 +714,9 @@ async def messenger_webhook(
         payload = await request.json()
         logger.info(f"📩 Received Messenger Webhook: {payload}")
         
-        data = extract_messenger_message(payload)
+        messages_data = extract_messenger_messages(payload)
         
-        if data:
+        for data in messages_data:
             chat_req = ChatRequest(
                 message=data['text'],
                 identifier=data['sender_id'],

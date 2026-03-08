@@ -62,48 +62,46 @@ async def send_instagram_message(recipient_id: str, text: str):
         except Exception as e:
             logger.error(f"❌ Exception in send_instagram_message: {e}")
 
-def extract_instagram_message(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def extract_instagram_messages(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
     """
-    Extract relevant message data from webhook payload
-    Returns dict with 'sender_id', 'text', 'metadata' or None
+    Extract all relevant message data from webhook payload (handles multiple messages)
+    Returns list of dicts with 'sender_id', 'text', 'metadata'
     """
+    extracted_messages = []
     try:
-        entry = payload.get('entry', [])[0]
-      # Handle messaging entry
-        if 'messaging' in entry:
-            messaging = entry['messaging'][0]
-            sender_id = messaging['sender']['id']
-            recipient_id = messaging['recipient']['id']  # Should be the Page/Bot ID
-            
-            logger.info(f"📍 Instagram IDs - Sender: {sender_id}, Recipient (Bot): {recipient_id}")
-            
-            if 'message' in messaging:
-                message_obj = messaging['message']
+        entries = payload.get('entry', [])
+        for entry in entries:
+            messaging_events = entry.get('messaging', [])
+            for messaging in messaging_events:
+                sender_id = messaging.get('sender', {}).get('id')
+                recipient_id = messaging.get('recipient', {}).get('id')
                 
-                # VERY IMPORTANT: Ignore echo messages (messages sent by the bot)
-                if message_obj.get('is_echo') or sender_id == recipient_id:
-                    logger.info("📍 Ignoring echo message (bot's own message)")
-                    return None
+                if 'message' in messaging:
+                    message_obj = messaging['message']
                     
-                # Ignore deleted messages or unsupported types (like only attachments)
-                if message_obj.get('is_deleted'):
-                    return None
+                    # Ignore echoes
+                    if message_obj.get('is_echo') or sender_id == recipient_id:
+                        continue
+                        
+                    # Ignore deleted
+                    if message_obj.get('is_deleted'):
+                        continue
+                        
+                    message_text = message_obj.get('text', '')
                     
-                message_text = message_obj.get('text', '')
-                
-                # Only process if there is actual text
-                if message_text:
-                    return {
-                        'sender_id': sender_id,
-                        'recipient_id': recipient_id,
-                        'text': message_text,
-                        'metadata': {
-                            'mid': message_obj.get('mid'),
-                            'platform': 'instagram'
-                        }
-                    }
+                    if message_text and sender_id:
+                        extracted_messages.append({
+                            'sender_id': sender_id,
+                            'recipient_id': recipient_id,
+                            'text': message_text,
+                            'metadata': {
+                                'mid': message_obj.get('mid'),
+                                'platform': 'instagram',
+                                'timestamp': messaging.get('timestamp')
+                            }
+                        })
             
-    except (IndexError, AttributeError) as e:
-        logger.debug(f"Could not extract message from payload: {e}")
+    except Exception as e:
+        logger.error(f"❌ Error extracting Instagram messages: {e}")
         
-    return None
+    return extracted_messages

@@ -55,29 +55,33 @@ async def send_messenger_message(recipient_id: str, text: str):
             if 'response' in locals():
                 logger.error(f"Response: {response.text}")
 
-def extract_messenger_message(payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def extract_messenger_messages(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
     """
-    Extract relevant message data from Messenger webhook payload
+    Extract all relevant messages from Messenger webhook payload
+    Returns list of dicts with 'sender_id', 'text', 'metadata'
     """
+    extracted_messages = []
     try:
-        entry = payload.get('entry', [])[0]
-        messaging = entry.get('messaging', [])[0]
+        entries = payload.get('entry', [])
+        for entry in entries:
+            messaging_events = entry.get('messaging', [])
+            for messaging in messaging_events:
+                sender_id = messaging.get('sender', {}).get('id')
+                message = messaging.get('message', {})
+                text = message.get('text')
+                
+                if sender_id and text:
+                    extracted_messages.append({
+                        "sender_id": sender_id,
+                        "text": text,
+                        "metadata": {
+                            "message_id": message.get('mid'),
+                            "timestamp": messaging.get('timestamp'),
+                            "platform": "messenger"
+                        }
+                    })
+                            
+    except Exception as e:
+        logger.error(f"❌ Error extracting Messenger messages: {e}")
         
-        sender_id = messaging.get('sender', {}).get('id')
-        message = messaging.get('message', {})
-        text = message.get('text')
-        
-        if sender_id and text:
-            return {
-                "sender_id": sender_id,
-                "text": text,
-                "metadata": {
-                    "message_id": message.get('mid'),
-                    "timestamp": messaging.get('timestamp')
-                }
-            }
-            
-    except (IndexError, AttributeError) as e:
-        logger.debug(f"Could not extract Messenger message: {e}")
-        
-    return None
+    return extracted_messages
