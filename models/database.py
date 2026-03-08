@@ -159,8 +159,8 @@ elif db_url.startswith("libsql://"):
         # Avoid double tokens if already present in URL
         if "authToken=" not in db_url and "auth_token=" not in db_url:
             separator = "&" if "?" in db_url else "?"
-            # Force secure=true for Turso AWS nodes
-            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}&secure=true"
+            # Force simplified URL for Turso AWS nodes
+            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}"
     
     # Debug log (masking the token)
     clean_url = db_url.split("authToken=")[0] + "authToken=***"
