@@ -133,7 +133,7 @@ async def privacy_policy():
         <meta property="og:locale" content="fr_FR" />
         
         <!-- App ID - Note: must be your numeric Meta App ID -->
-        <meta property="fb:app_id" content="1120227289524022" />
+        <meta property="fb:app_id" content="1279864637504014" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
