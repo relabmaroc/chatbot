@@ -118,6 +118,7 @@ async def privacy_policy():
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta property="fb:app_id" content="1279864637504014">
+        <meta name="fb:app_id" content="1279864637504014">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://chatbot-production-9a92.up.railway.app/privacy">
         <meta property="og:title" content="Politique de Confidentialité - RE-LAB">
