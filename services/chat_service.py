@@ -714,6 +714,27 @@ class ChatService:
             self._persist_state(db, conversation, contact, qualification_data, intent.type)
             self._save_message(db, conversation.id, "assistant", response_text, intent)
             
+            # --- NEW: Admin Notification on Handoff ---
+            if should_handoff:
+                try:
+                    from services.notification_service import notification_service
+                    # Trigger in background if possible, but here we are likely already in a task
+                    # We use contact_key or identifier for the name
+                    contact_display = contact.full_name or contact.contact_key or "Client Anonyme"
+                    
+                    # We don't await it to avoid slowing down the response to the user
+                    import asyncio
+                    asyncio.create_task(notification_service.notify_handoff(
+                        conversation_id=conversation.id,
+                        contact_name=contact_display,
+                        reason=handoff_reason or "Besoin d'intervention",
+                        channel=conversation.channel or "web",
+                        intent_type=effective_intent_type.value,
+                        summary=response_text
+                    ))
+                except Exception as notify_err:
+                    logger.error(f"⚠️ Failed to trigger handoff notification: {notify_err}")
+
             return ChatResponse(
                 message=response_text,
                 conversation_id=conversation.id,

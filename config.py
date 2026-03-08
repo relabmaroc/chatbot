@@ -59,6 +59,9 @@ class Settings(BaseSettings):
     whatsapp_access_token: Optional[str] = None
     whatsapp_phone_number_id: Optional[str] = None
     
+    # Admin Notifications
+    admin_whatsapp_number: Optional[str] = "+2127031502030"
+    
     # Messenger Configuration
     messenger_verify_token: Optional[str] = None
     messenger_access_token: Optional[str] = None
