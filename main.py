@@ -117,24 +117,14 @@ async def privacy_policy():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta property="fb:app_id" content="1279864637504014">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://chatbot-production-9a92.up.railway.app/privacy">
+        <meta property="og:title" content="Politique de Confidentialité - RE-LAB">
+        <meta property="og:image" content="https://chatbot-production-9a92.up.railway.app/static/logo.png">
+        <meta property="og:description" content="Découvrez comment Re-Lab protège vos échanges sur nos canaux officiels.">
+        <meta property="og:locale" content="fr_FR">
         <title>Confidentialité & Données - RE-LAB</title>
-        
-        <!-- Primary Meta Tags -->
-        <meta name="title" content="Politique de Confidentialité - RE-LAB" />
-        <meta name="description" content="Engagement de Re-Lab Maroc pour la protection de vos données personnelles sur Instagram et WhatsApp." />
-
-        <!-- Open Graph / Facebook -->
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://chatbot-production-9a92.up.railway.app/privacy" />
-        <meta property="og:title" content="Politique de Confidentialité - RE-LAB" />
-        <meta property="og:description" content="Découvrez comment Re-Lab protège vos échanges sur nos canaux officiels." />
-        <meta property="og:image" content="https://chatbot-production-9a92.up.railway.app/static/logo.png" />
-        <meta property="og:site_name" content="RE-LAB Maroc" />
-        <meta property="og:locale" content="fr_FR" />
-        
-        <!-- App ID - Note: must be your numeric Meta App ID -->
-        <meta property="fb:app_id" content="1279864637504014" />
-
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
