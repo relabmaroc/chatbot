@@ -31,8 +31,11 @@ async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
     logger.info("Starting Relab Chatbot Backend...")
-    init_db()
-    logger.info("Database initialized")
+    try:
+        init_db()
+        logger.info("✅ Database initialized successfully")
+    except Exception as e:
+        logger.error(f"⚠️ Database initialization failed: {e}. App will start but DB features may fail.")
     yield
     # Shutdown
     logger.info("Shutting down...")

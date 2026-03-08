@@ -150,18 +150,24 @@ if db_url.startswith("postgres://"):
 
 # Handle Turso (libsql)
 elif db_url.startswith("libsql://"):
-    # Convert libsql:// to sqlite+libsql://
-    db_url = db_url.replace("libsql://", "sqlite+libsql://", 1)
-    # Add auth_token if provided
+    # Convert libsql:// to sqlite+libsql:// for SQLAlchemy compatibility
+    base_url = db_url.replace("libsql://", "", 1)
+    db_url = f"sqlite+libsql://{base_url}"
+    
+    # Add auth_token if provided (cleanly)
     if settings.database_auth_token:
-        if "?" in db_url:
-            db_url += f"&auth_token={settings.database_auth_token}"
-        else:
-            db_url += f"?auth_token={settings.database_auth_token}"
+        # Avoid double tokens if already present in URL
+        if "auth_token=" not in db_url:
+            separator = "&" if "?" in db_url else "?"
+            db_url = f"{db_url}{separator}auth_token={settings.database_auth_token}"
+
+# Engine creation
+is_sqlite_based = "sqlite" in db_url.lower()
 
 engine = create_engine(
     db_url,
-    connect_args={"check_same_thread": False} if "sqlite" in db_url.lower() else {},
+    # check_same_thread is ONLY for local SQLite files
+    connect_args={"check_same_thread": False} if (is_sqlite_based and "libsql" not in db_url.lower()) else {},
     pool_pre_ping=True,      # Check connection before using
     pool_recycle=3600,       # Recycle connections every hour
 )
