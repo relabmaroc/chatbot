@@ -750,7 +750,8 @@ class ChatService:
                 message="Désolé, une erreur technique est survenue.",
                 conversation_id=conversation.id if 'conversation' in locals() and conversation else (request.conversation_id or "error-fallback"),
                 intent=None,
-                should_handoff=False
+                should_handoff=False,
+                metadata={"error": str(e)}
             )
 
     # -------------------------------------------------------------------------
