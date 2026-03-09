@@ -141,8 +141,10 @@ class Analytics(Base):
     extra_data = Column(JSON, default={})
 
 
-# Database setup - Use environment-first approach
-db_url = settings.database_url
+# Database setup - Temporary switch to LOCAL SQLITE to solve Turso 405 
+# Turso connection is currently blocked by AWS nodes (405 Method Not Allowed)
+db_url = "sqlite:///./chatbot.db"
+logger.info(f"🔄 FORCED LOCAL SQLITE: {db_url}")
 
 # 1. Handle PostgreSQL (Railway style)
 if db_url.startswith("postgres://"):
