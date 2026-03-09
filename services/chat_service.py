@@ -57,6 +57,22 @@ class ChatService:
                     self._save_message(db, conversation.id, "user", request.message, None)
                     self._save_message(db, conversation.id, "assistant", response.message, response.intent)
                     
+                    # Enrich conversation with n8n response data for dashboard
+                    if response.intent and response.intent.type:
+                        conversation.intent_type = response.intent.type.value if hasattr(response.intent.type, 'value') else str(response.intent.type)
+                        conversation.monetization_score = max(
+                            conversation.monetization_score or 0,
+                            response.intent.monetization_score or 0
+                        )
+                    
+                    # Track credit interest in extra_data
+                    extra = conversation.extra_data or {}
+                    if response.intent and hasattr(response.intent, 'type'):
+                        intent_val = response.intent.type.value if hasattr(response.intent.type, 'value') else str(response.intent.type)
+                        if "credit" in intent_val.lower():
+                            extra["credit_interest"] = True
+                    conversation.extra_data = extra
+                    
                     # Update status
                     if response.should_handoff:
                         conversation.status = ConversationStatus.HANDED_OFF.value

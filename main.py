@@ -528,13 +528,57 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
         func.count(Conversation.id)
     ).filter(Conversation.intent_type != None).group_by(Conversation.intent_type).order_by(func.count(Conversation.id).desc()).limit(3).all()
 
-    # Recent questions (last 5 unique user messages)
-    recent_qs = db.query(Message.content).filter(Message.sender == "user").order_by(Message.created_at.desc()).limit(10).all()
-    unique_qs = list(set([q[0] for q in recent_qs if len(q[0]) > 10]))[:5]
+    # Recent questions — last 5 user messages, no aggressive dedup
+    recent_qs_raw = db.query(Message.content).filter(
+        Message.sender == "user",
+        func.length(Message.content) > 5
+    ).order_by(Message.created_at.desc()).limit(20).all()
+    seen = set()
+    unique_qs = []
+    for (q,) in recent_qs_raw:
+        if q not in seen:
+            seen.add(q)
+            unique_qs.append(q[:80])
+        if len(unique_qs) == 5:
+            break
+
+    # Messages count
+    total_messages = db.query(func.count(Message.id)).scalar() or 0
+
+    # Conversations by channel
+    by_channel = db.query(
+        Conversation.channel,
+        func.count(Conversation.id)
+    ).group_by(Conversation.channel).all()
+    conversations_by_channel = {ch: cnt for ch, cnt in by_channel}
+
+    # Average monetization score
+    avg_score = db.query(func.avg(Conversation.monetization_score)).scalar() or 0
+
+    # Top 3 intents with labels
+    intent_labels = {
+        "product_info": "Info produit",
+        "sales_achat": "Achat",
+        "info_credit": "Crédit",
+        "credit_eligibility": "Éligibilité crédit",
+        "credit_documents": "Documents crédit",
+        "reparation": "Réparation",
+        "sav": "SAV",
+        "tradein": "Reprise",
+        "commande": "Commande",
+        "location_delivery": "Livraison",
+        "unknown": "Inconnu",
+    }
+    top_intents = [
+        {"intent": intent_labels.get(intent, intent), "count": count}
+        for intent, count in top_products
+        if intent
+    ]
 
     return {
         "total_conversations": total_conversations,
         "recent_conversations": recent_conversations,
+        "total_messages": total_messages,
         "total_leads": total_leads,
         "total_estimated_value": total_value,
         "leads_by_intent": {
@@ -543,9 +587,12 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
         "bot_ratio": bot_ratio,
         "human_ratio": 100 - bot_ratio,
         "credit_interest_ratio": credit_ratio,
-        "conversion_rate": (total_leads / total_conversations * 100) if total_conversations > 0 else 0,
+        "conversion_rate": round((total_leads / total_conversations * 100), 1) if total_conversations > 0 else 0,
+        "avg_monetization_score": round(float(avg_score), 1),
         "daily_volume": daily_volume,
-        "top_subject": top_products[0][0] if top_products else "N/A",
+        "conversations_by_channel": conversations_by_channel,
+        "top_intents": top_intents,
+        "top_subject": top_intents[0]["intent"] if top_intents else "N/A",
         "recent_questions": unique_qs
     }
 
