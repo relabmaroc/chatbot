@@ -30,6 +30,7 @@ class N8NService:
 
         payload = {
             "message": message,
+            "query": message,      # Standard for many n8n nodes
             "chatInput": message,  # Standard key for n8n AI templates
             "identifier": identifier,
             "channel": channel,

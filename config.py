@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     max_bot_messages: int = 10  # Max messages before suggesting human
     
     # n8n Workflow Configuration
-    use_n8n_workflow: bool = False
+    use_n8n_workflow: bool = True
     n8n_webhook_url: Optional[str] = None
     
     # Rate Limiting
