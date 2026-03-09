@@ -482,7 +482,7 @@ async def get_dashboard_conversations(
 @app.get("/analytics/summary")
 async def get_analytics_summary(db: Session = Depends(get_db)):
     """Get analytics summary"""
-    from models.database import Conversation, Lead
+    from models.database import Conversation, Lead, Message
     from sqlalchemy import func
     from datetime import datetime, timedelta
     
