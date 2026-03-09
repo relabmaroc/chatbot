@@ -141,36 +141,13 @@ class Analytics(Base):
     extra_data = Column(JSON, default={})
 
 
-# Database setup - ensure the scheme is correct for different providers
-db_url = settings.database_url
-
-# 1. Handle PostgreSQL name variations
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
-
-# 2. Handle Turso (libsql)
-elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
-    # Extract the clean hostname/host without the protocol
-    # If it was https://host, replace, then if it was libsql://host, replace
-    raw_host = db_url
-    for proto in ["libsql://", "https://"]:
-        raw_host = raw_host.replace(proto, "", 1)
-    
-    # Ensure HOST only (strip paths/queries if any)
-    base_host = raw_host.split("?")[0].split("/")[0]
-    
-    # Reconstruct as sqlite+libsql://[host] (mandatory for sqlalchemy-libsql to find the dialect)
-    db_url = f"sqlite+libsql://{base_host}"
-    
-    # 3. Add auth_token if provided
-    if settings.database_auth_token:
-        # Avoid double tokens if already present in URL
-        if "authToken=" not in db_url and "auth_token=" not in db_url:
-            separator = "&" if "?" in db_url else "?"
-            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}"
+# Database setup - Temporary FORCE LOCAL SQLITE to unblock testing
+# Due to Turso 405 Method Not Allowed on AWS nodes
+import os
+db_url = "sqlite:///./chatbot.db"
 
 # Engine creation
-is_sqlite_based = "sqlite" in db_url.lower()
+is_sqlite_based = True
 
 engine = create_engine(
     db_url,
