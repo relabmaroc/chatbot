@@ -2,7 +2,10 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, B
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
+import logging
 from config import settings
+
+logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
@@ -141,10 +144,9 @@ class Analytics(Base):
     extra_data = Column(JSON, default={})
 
 
-# Database setup - Temporary switch to LOCAL SQLITE to solve Turso 405 
-# Turso connection is currently blocked by AWS nodes (405 Method Not Allowed)
-db_url = "sqlite:///./chatbot.db"
-logger.info(f"🔄 FORCED LOCAL SQLITE: {db_url}")
+# Database setup - USE environment variable (Turso or SQLite fallback)
+db_url = settings.database_url or "sqlite:///./chatbot.db"
+logger.info(f"🔌 DB URL prefix: {db_url[:30]}...")
 
 # 1. Handle PostgreSQL (Railway style)
 if db_url.startswith("postgres://"):
