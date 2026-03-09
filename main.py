@@ -18,6 +18,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 from models.database import init_db, get_db
+from models.schemas import ChatRequest, ChatResponse
+from config import settings
 
 # Import services after logging is configured
 from services.chat_service import chat_service
