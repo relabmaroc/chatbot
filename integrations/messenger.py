@@ -39,7 +39,7 @@ async def send_messenger_message(recipient_id: str, text: str):
         logger.error("❌ Messenger access token not configured")
         return
 
-    url = f"https://graph.facebook.com/v18.0/me/messages"
+    url = f"https://graph.facebook.com/v21.0/me/messages"
     headers = {
         "Authorization": f"Bearer {settings.messenger_access_token}",
         "Content-Type": "application/json"

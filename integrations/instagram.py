@@ -39,7 +39,7 @@ async def send_instagram_message(recipient_id: str, text: str):
         return
 
     # Use the standard Graph API endpoint for messages
-    url = "https://graph.facebook.com/v18.0/me/messages"
+    url = "https://graph.facebook.com/v21.0/me/messages"
     
     headers = {
         "Authorization": f"Bearer {settings.instagram_access_token}",
