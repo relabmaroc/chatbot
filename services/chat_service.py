@@ -3,8 +3,8 @@ Chat Service (Pure n8n Proxy Mode)
 Orchestrator that delegates all intelligence to n8n workflow.
 """
 from typing import Optional, List, Dict, Any
-from models.schemas import ChatRequest, ChatResponse, Intent, IntentType, Language
-from models.database import get_db, Conversation, Message, Contact, ConversationStatus
+from models.schemas import ChatRequest, ChatResponse, Intent, IntentType, Language, ConversationStatus
+from models.database import get_db, Conversation, Message, Contact
 from services.n8n_service import n8n_service
 from config import settings
 from datetime import datetime
