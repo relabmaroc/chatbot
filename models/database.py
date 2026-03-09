@@ -171,15 +171,26 @@ elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
 # Engine creation
 is_sqlite_based = "sqlite" in db_url.lower()
 
-engine = create_engine(
-    db_url,
-    # check_same_thread is ONLY for local SQLite files
-    connect_args={"check_same_thread": False} if (is_sqlite_based and "libsql" not in db_url.lower()) else {},
-    pool_pre_ping=True,      # Check connection before using
-    pool_recycle=3600,       # Recycle connections every hour
-)
+# Database Engine and Session - Lazy initialization
+_engine = None
+_SessionLocal = None
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+def get_engine():
+    global _engine
+    if _engine is None:
+        _engine = create_engine(
+            db_url,
+            connect_args={"check_same_thread": False} if (is_sqlite_based and "libsql" not in db_url.lower()) else {},
+            pool_pre_ping=True,
+            pool_recycle=3600,
+        )
+    return _engine
+
+def get_session_class():
+    global _SessionLocal
+    if _SessionLocal is None:
+        _SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=get_engine())
+    return _SessionLocal
 
 
 def init_db():
@@ -191,12 +202,13 @@ def init_db():
     clean_url = db_url.split("authToken=")[0] + "authToken=***" if "authToken=" in db_url else db_url
     logger.info(f"🔌 Connecting to DB with: {clean_url}")
     
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=get_engine())
 
 
 def get_db():
     """Get database session"""
-    db = SessionLocal()
+    Session = get_session_class()
+    db = Session()
     try:
         yield db
     finally:

@@ -23,35 +23,42 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-from models.database import init_db, get_db
+# No heavy imports at module level to ensure fast boot
+from models.database import get_db
 from models.schemas import ChatRequest, ChatResponse
 from config import settings
 
-# Import services after logging is configured
-from services.chat_service import chat_service
+_chat_service = None
+
+def get_chat_service():
+    global _chat_service
+    if _chat_service is None:
+        from services.chat_service import chat_service
+        _chat_service = chat_service
+    return _chat_service
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
-    # Startup
+    print(">> LIFESPAN STARTING <<", flush=True)
     logger.info("🚀 Starting Relab Chatbot Backend (Resilient Mode)...")
     
     # Run DB init in a separate thread to NOT block healthcheck
-    # if Turso connection is slow or hanging
     def run_init():
         try:
+            from models.database import init_db
             logger.info("⏳ Initializing database in background...")
             init_db()
-            logger.info("✅ Database initialized successfully in background")
+            print(">> DATABASE INIT SUCCESS <<", flush=True)
         except Exception as e:
-            logger.error(f"❌ Background database initialization failed: {e}")
+            logger.error(f"❌ Background database initialization failed: {e}", exc_info=True)
 
     db_thread = threading.Thread(target=run_init, daemon=True)
     db_thread.start()
     
+    print(">> APP READY FOR REQUESTS <<", flush=True)
     yield
-    # Shutdown
     logger.info("Stopping...")
 
 
@@ -332,7 +339,8 @@ async def chat(
         logger.info(f"Processing message: {request.message[:50]}...")
         
         # Process message through chat service
-        response = await chat_service.process_message(request, db)
+        service = get_chat_service()
+        response = await service.process_message(request, db)
         
         logger.info(f"Response generated - Intent: {response.intent.type if response.intent else 'unknown'}, Handoff: {response.should_handoff}")
         
@@ -581,7 +589,8 @@ async def process_instagram_task(data: dict, db: Session):
         
         # Process through chatbot logic (can take 30s+)
         logger.info(f"🔄 Processing Instagram message from {data['sender_id']} in background")
-        response = await chat_service.process_message(chat_req, db)
+        service = get_chat_service()
+        response = await service.process_message(chat_req, db)
         
         # Send reply back to Instagram
         if response.message:
@@ -640,7 +649,8 @@ async def process_whatsapp_task(data: dict, db: Session):
         )
         
         logger.info(f"🔄 Processing WhatsApp message from {data['sender_id']} in background")
-        response = await chat_service.process_message(chat_req, db)
+        service = get_chat_service()
+        response = await service.process_message(chat_req, db)
         
         if response.message:
             logger.info(f"🚀 [PYTHON-SEND] Sending reply to WhatsApp: {response.message[:50]}...")
@@ -697,7 +707,8 @@ async def email_webhook(
             )
             
             logger.info(f"🔄 Processing Email from {data['sender_id']}")
-            response = await chat_service.process_message(chat_req, db)
+            service = get_chat_service()
+            response = await service.process_message(chat_req, db)
             
             if response.message:
                 await send_email_message(data['sender_id'], response.message, subject=f"Re: {data['metadata'].get('subject', 'Relab')}")
@@ -739,7 +750,8 @@ async def messenger_webhook(
             )
             
             logger.info(f"🔄 Processing Messenger from {data['sender_id']}")
-            response = await chat_service.process_message(chat_req, db)
+            service = get_chat_service()
+            response = await service.process_message(chat_req, db)
             
             if response.message:
                 await send_messenger_message(data['sender_id'], response.message)
