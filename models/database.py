@@ -150,7 +150,7 @@ if db_url.startswith("postgres://"):
 
 # 2. Handle Turso (libsql)
 elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
-    # Normalize host: remove protocols
+    # 1. Normalize host: extract just the hostname
     raw_host = db_url
     for proto in ["libsql://", "https://"]:
         raw_host = raw_host.replace(proto, "", 1)
@@ -158,15 +158,11 @@ elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
     # Strip paths/queries
     base_host = raw_host.split("?")[0].split("/")[0]
     
-    # Force sqlite+libsql:// (mandatory for the SQLAlchemy dialect)
-    db_url = f"sqlite+libsql://{base_host}"
+    # 2. Build canonical URL
+    # We include secure=true for Turso remote nodes
+    db_url = f"sqlite+libsql://{base_host}?secure=true"
     
-    # 3. Inject authToken safely
-    if settings.database_auth_token:
-        # Check if already present to avoid duplicates
-        if "authToken=" not in db_url:
-            separator = "&" if "?" in db_url else "?"
-            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}"
+    # We'll pass the authToken via connect_args later
 
 # Engine creation
 is_sqlite_based = "sqlite" in db_url.lower()
@@ -178,9 +174,22 @@ _SessionLocal = None
 def get_engine():
     global _engine
     if _engine is None:
+        # Prepare connect_args for Turso/Libsql
+        connect_args = {}
+        
+        # Inject auth_token if available (Snake case for new driver)
+        if settings.database_auth_token:
+            connect_args["auth_token"] = settings.database_auth_token
+            # Compatibility fallback
+            connect_args["authToken"] = settings.database_auth_token
+            
+        # SQLite specific argument
+        if is_sqlite_based and "libsql" not in db_url.lower():
+            connect_args["check_same_thread"] = False
+            
         _engine = create_engine(
             db_url,
-            connect_args={"check_same_thread": False} if (is_sqlite_based and "libsql" not in db_url.lower()) else {},
+            connect_args=connect_args,
             pool_pre_ping=True,
             pool_recycle=3600,
         )

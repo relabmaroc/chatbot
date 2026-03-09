@@ -124,11 +124,19 @@ async def root():
 
 
 @app.get("/health")
-async def health_check():
-    """Detailed health check"""
+async def health_check(db: Session = Depends(get_db)):
+    """Health check with real DB verification"""
+    db_status = "disconnected"
+    try:
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as e:
+        logger.error(f"Healthcheck DB failure: {e}")
+        
     return {
-        "status": "healthy",
-        "database": "connected",
+        "status": "healthy" if db_status == "connected" else "degraded",
+        "database": db_status,
         "llm": "configured"
     }
 
