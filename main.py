@@ -624,7 +624,8 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
 # ==========================================
 
 # Webhook-level dedup: prevent Meta retry duplicates
-_processed_webhook_ids: set = set()
+_processed_webhook_ids: dict = {}
+WEBHOOK_DEDUP_WINDOW = 60  # seconds
 
 from integrations.instagram import (
     verify_instagram_webhook,
@@ -665,12 +666,17 @@ async def process_instagram_task(data: dict):
     try:
         # Webhook dedup by message ID
         msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
+        now = time.time()
+        
+        # Clean expired keys
+        expired = [k for k, v in _processed_webhook_ids.items() if now - v > WEBHOOK_DEDUP_WINDOW]
+        for k in expired:
+            del _processed_webhook_ids[k]
+            
         if msg_id in _processed_webhook_ids:
             logger.warning(f"⚡ Duplicate Instagram webhook ignored: {msg_id}")
             return
-        _processed_webhook_ids.add(msg_id)
-        if len(_processed_webhook_ids) > 1000:  # Prevent memory leak
-            _processed_webhook_ids.clear()
+        _processed_webhook_ids[msg_id] = now
 
         # Create chat request
         chat_req = ChatRequest(
@@ -743,12 +749,16 @@ async def process_whatsapp_task(data: dict):
     try:
         # Webhook dedup by message ID
         msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
+        now = time.time()
+        
+        expired = [k for k, v in _processed_webhook_ids.items() if now - v > WEBHOOK_DEDUP_WINDOW]
+        for k in expired:
+            del _processed_webhook_ids[k]
+            
         if msg_id in _processed_webhook_ids:
             logger.warning(f"⚡ Duplicate WhatsApp webhook ignored: {msg_id}")
             return
-        _processed_webhook_ids.add(msg_id)
-        if len(_processed_webhook_ids) > 1000:
-            _processed_webhook_ids.clear()
+        _processed_webhook_ids[msg_id] = now
 
         chat_req = ChatRequest(
             message=data['text'],
@@ -852,12 +862,16 @@ async def process_messenger_task(data: dict):
     try:
         # Webhook dedup
         msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
+        now = time.time()
+        
+        expired = [k for k, v in _processed_webhook_ids.items() if now - v > WEBHOOK_DEDUP_WINDOW]
+        for k in expired:
+            del _processed_webhook_ids[k]
+            
         if msg_id in _processed_webhook_ids:
             logger.warning(f"⚡ Duplicate Messenger webhook ignored: {msg_id}")
             return
-        _processed_webhook_ids.add(msg_id)
-        if len(_processed_webhook_ids) > 1000:
-            _processed_webhook_ids.clear()
+        _processed_webhook_ids[msg_id] = now
 
         chat_req = ChatRequest(
             message=data['text'],
