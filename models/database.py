@@ -141,14 +141,36 @@ class Analytics(Base):
     extra_data = Column(JSON, default={})
 
 
-# Database setup - Temporary FORCE LOCAL SQLITE to unblock testing
-# Due to Turso 405 Method Not Allowed on AWS nodes
-import os
-db_url = "sqlite:///./chatbot.db"
+# Database setup - Use environment-first approach
+db_url = settings.database_url
+
+# 1. Handle PostgreSQL (Railway style)
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# 2. Handle Turso (libsql)
+elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
+    # Normalize host: remove protocols
+    raw_host = db_url
+    for proto in ["libsql://", "https://"]:
+        raw_host = raw_host.replace(proto, "", 1)
+    
+    # Strip paths/queries
+    base_host = raw_host.split("?")[0].split("/")[0]
+    
+    # Force sqlite+libsql:// (mandatory for the SQLAlchemy dialect)
+    db_url = f"sqlite+libsql://{base_host}"
+    
+    # 3. Inject authToken safely
+    if settings.database_auth_token:
+        # Check if already present to avoid duplicates
+        if "authToken=" not in db_url:
+            separator = "&" if "?" in db_url else "?"
+            db_url = f"{db_url}{separator}authToken={settings.database_auth_token}"
 
 # Engine creation
-is_sqlite_based = True
-print(f"DEBUG: FINAL DB_URL USED IS: {db_url}")
+is_sqlite_based = "sqlite" in db_url.lower()
+print(f"DEBUG: FINAL DB_URL USED IS: {db_url.split('authToken=')[0]}authToken=***")
 
 engine = create_engine(
     db_url,

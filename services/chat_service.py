@@ -22,44 +22,54 @@ class ChatService:
     
     async def process_message(self, request: ChatRequest, db) -> ChatResponse:
         """
-        Delegates message processing exclusively to n8n.
+        Delegates message processing exclusively to n8n FIRST.
+        Saves locally only if successful (User's requirement).
         """
         try:
-            logger.info(f"Processing message (n8n mode): {request.message[:50]}...")
+            logger.info(f"Processing message (n8n first mode): {request.message[:50]}...")
 
-            # 1. Get or Create Conversation (for local history/dashboard)
-            conversation, is_new = self._get_or_create_conversation(
-                db, request.conversation_id, request.identifier, request.channel
-            )
+            # 1. Use existing conversation_id or generate a temporary one for n8n
+            # We don't save to DB yet.
+            n8n_session_id = request.conversation_id or str(uuid.uuid4())
             
-            # 2. Save User Message
-            self._save_message(db, conversation.id, "user", request.message, None)
-            
-            # 3. Whitelist check (optional, but kept for safety)
-            if settings.test_mode_enabled:
-                allowed_users = [u.strip() for u in settings.allowed_test_users.split(",") if u.strip()]
-                if request.identifier not in allowed_users:
-                    logger.warning(f"User {request.identifier} not in whitelist. Ignoring.")
-                    return ChatResponse(message=None, conversation_id="ignored", should_handoff=False)
-
-            # 4. Delegate to n8n
+            # 2. Delegate to n8n Webhook
+            # n8n will process and return the response.
             response = await n8n_service.send_to_n8n(
                 message=request.message,
                 identifier=request.identifier,
                 channel=request.channel,
                 metadata=request.metadata,
-                conversation_id=conversation.id
+                conversation_id=n8n_session_id
             )
             
-            # 5. Save Assistant Message
-            self._save_message(db, conversation.id, "assistant", response.message, response.intent)
+            # 3. IF n8n succeeded, now we persist locally to provide history for the dashboard
+            # We ONLY hit the database if n8n response doesn't contain a communication error
+            is_n8n_error = response.metadata.get("error") and "communication avec n8n" in str(response.metadata.get("error"))
             
-            # 6. Update conversation metadata if possible
-            if response.should_handoff:
-                conversation.status = ConversationStatus.HANDED_OFF.value
-            
-            conversation.last_message_at = datetime.utcnow()
-            db.commit()
+            if not is_n8n_error:
+                try:
+                    # Get or create conversation (writes to DB)
+                    conversation, is_new = self._get_or_create_conversation(
+                        db, n8n_session_id, request.identifier, request.channel
+                    )
+                    
+                    # Save User & Assistant Messages
+                    self._save_message(db, conversation.id, "user", request.message, None)
+                    self._save_message(db, conversation.id, "assistant", response.message, response.intent)
+                    
+                    # Update status
+                    if response.should_handoff:
+                        conversation.status = ConversationStatus.HANDED_OFF.value
+                    
+                    conversation.last_message_at = datetime.utcnow()
+                    db.commit()
+                    
+                    # Ensure the response uses the actual CID from our DB for consistency
+                    response.conversation_id = conversation.id
+                except Exception as db_err:
+                    logger.error(f"⚠️ Persistence error (n8n was OK): {db_err}")
+            else:
+                logger.warning("📍 Skipping DB persistence because n8n workflow failed.")
             
             return response
 
