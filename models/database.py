@@ -189,11 +189,9 @@ def get_engine():
         # Prepare connect_args for Turso/Libsql
         connect_args = {}
         
-        # Inject auth_token if available (Snake case for new driver)
+        # Only auth_token (snake_case) is accepted by sqlalchemy-libsql
         if settings.database_auth_token:
             connect_args["auth_token"] = settings.database_auth_token
-            # Compatibility fallback
-            connect_args["authToken"] = settings.database_auth_token
             
         # SQLite specific argument
         if is_sqlite_based and "libsql" not in db_url.lower():
