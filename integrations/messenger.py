@@ -39,7 +39,7 @@ async def send_messenger_message(recipient_id: str, text: str):
         logger.error("❌ Messenger access token not configured")
         return
 
-    url = f"https://graph.facebook.com/v25.0/me/messages"
+    url = f"https://graph.facebook.com/v21.0/me/messages"
     headers = {
         "Authorization": f"Bearer {settings.messenger_access_token}",
         "Content-Type": "application/json"
@@ -104,7 +104,8 @@ def extract_messenger_messages(payload: Dict[str, Any]) -> list:
                             text = "Bonjour ! (message avec pièce jointe)"
 
                     # Ad click-to-DM referral (message comes with referral, possibly no text)
-                    referral = messaging.get('referral') or message_obj.get('referral', {})
+                    raw_referral = messaging.get('referral') or message_obj.get('referral')
+                    referral = raw_referral if isinstance(raw_referral, dict) else {}
                     is_ad = referral.get('source') in ('ADS', 'SHORTLINK', 'CUSTOMER_CHAT_PLUGIN')
                     if is_ad and not text:
                         ad_title = referral.get('headline', 'votre publicité Relab')

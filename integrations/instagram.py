@@ -39,7 +39,7 @@ async def send_instagram_message(recipient_id: str, text: str):
         return
 
     # Use the standard Graph API endpoint for messages
-    url = "https://graph.facebook.com/v25.0/me/messages"
+    url = "https://graph.facebook.com/v21.0/me/messages"
     
     headers = {
         "Authorization": f"Bearer {settings.instagram_access_token}",
@@ -108,7 +108,8 @@ def extract_instagram_messages(payload: Dict[str, Any]) -> list[Dict[str, Any]]:
                             message_text = "Bonjour ! (message avec pièce jointe)"
 
                     # Ad click-to-DM: referral present but possibly no text yet
-                    referral = messaging.get('referral') or message_obj.get('referral', {})
+                    raw_referral = messaging.get('referral') or message_obj.get('referral')
+                    referral = raw_referral if isinstance(raw_referral, dict) else {}
                     is_ad = referral.get('source') in ('ADS', 'SHORTLINK', 'CUSTOMER_CHAT_PLUGIN')
 
                     if is_ad and not message_text:
