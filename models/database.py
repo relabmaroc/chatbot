@@ -148,6 +148,7 @@ db_url = "sqlite:///./chatbot.db"
 
 # Engine creation
 is_sqlite_based = True
+print(f"DEBUG: FINAL DB_URL USED IS: {db_url}")
 
 engine = create_engine(
     db_url,
