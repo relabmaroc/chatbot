@@ -459,10 +459,19 @@ async def get_dashboard_conversations(
         joinedload(Conversation.contact)
     ).order_by(Conversation.last_message_at.desc()).limit(limit).all()
     
+    # OPIMIZATION: Fetch all last messages in a single query instead of a loop
+    conv_ids = [c.id for c in conversations]
+    last_messages = {}
+    if conv_ids:
+        # Preload messages for these conversations
+        all_msgs = db.query(Message).filter(Message.conversation_id.in_(conv_ids)).order_by(Message.created_at.desc()).all()
+        for msg in all_msgs:
+            if msg.conversation_id not in last_messages:
+                last_messages[msg.conversation_id] = msg
+    
     results = []
     for conv in conversations:
-        # Get last message text
-        last_msg = db.query(Message).filter(Message.conversation_id == conv.id).order_by(Message.created_at.desc()).first()
+        last_msg = last_messages.get(conv.id)
         
         results.append({
             "id": conv.id,
@@ -478,14 +487,22 @@ async def get_dashboard_conversations(
         
     return results
 
+# Basic in-memory cache for analytics to speed up Turso response
+import time
+_analytics_cache = {"timestamp": 0, "data": None}
+CACHE_TTL = 60  # Cache for 60 seconds
 
 @app.get("/analytics/summary")
 async def get_analytics_summary(db: Session = Depends(get_db)):
-    """Get analytics summary"""
+    """Get analytics summary, using a short cache to boost performance on Turso"""
     from models.database import Conversation, Lead, Message
     from sqlalchemy import func
     from datetime import datetime, timedelta
     
+    now = time.time()
+    if _analytics_cache["data"] and (now - _analytics_cache["timestamp"] < CACHE_TTL):
+        return _analytics_cache["data"]
+
     # Time window: last 30 days
     last_30 = datetime.utcnow() - timedelta(days=30)
     
@@ -575,7 +592,7 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
         if intent
     ]
 
-    return {
+    result = {
         "total_conversations": total_conversations,
         "recent_conversations": recent_conversations,
         "total_messages": total_messages,
@@ -595,6 +612,11 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
         "top_subject": top_intents[0]["intent"] if top_intents else "N/A",
         "recent_questions": unique_qs
     }
+    
+    _analytics_cache["timestamp"] = time.time()
+    _analytics_cache["data"] = result
+    
+    return result
 
 
 # ==========================================
