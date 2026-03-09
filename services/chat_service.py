@@ -6,12 +6,18 @@ from typing import Optional, List, Dict, Any
 from models.schemas import ChatRequest, ChatResponse, Intent, IntentType, Language, ConversationStatus
 from models.database import get_db, Conversation, Message, Contact
 from services.n8n_service import n8n_service
+from services.notification_service import notification_service
 from config import settings
 from datetime import datetime
 import uuid
+import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
+
+# In-memory deduplication cache: message_hash -> timestamp
+_recent_messages: dict = {}
+DEDUP_WINDOW_SECONDS = 30
 
 class ChatService:
     """Chat service acting as a proxy for n8n workflow"""
@@ -28,8 +34,23 @@ class ChatService:
         try:
             logger.info(f"Processing message (n8n first mode): {request.message[:50]}...")
 
+            # --- DEDUPLICATION: skip exact same message from same user within window ---
+            dedup_key = hashlib.md5(f"{request.identifier}:{request.message}".encode()).hexdigest()
+            now = datetime.utcnow().timestamp()
+            # Clean old entries
+            expired = [k for k, t in _recent_messages.items() if now - t > DEDUP_WINDOW_SECONDS]
+            for k in expired:
+                del _recent_messages[k]
+            if dedup_key in _recent_messages:
+                logger.warning(f"⚡ Duplicate message detected from {request.identifier}, skipping.")
+                return ChatResponse(
+                    message="",  # Silent: already processing
+                    conversation_id=request.conversation_id or "dedup",
+                    intent=None, should_handoff=False, metadata={"dedup": True}
+                )
+            _recent_messages[dedup_key] = now
+
             # 1. Use existing conversation_id or generate a temporary one for n8n
-            # We don't save to DB yet.
             n8n_session_id = request.conversation_id or str(uuid.uuid4())
             
             # 2. Delegate to n8n Webhook
@@ -79,8 +100,47 @@ class ChatService:
                     
                     conversation.last_message_at = datetime.utcnow()
                     db.commit()
-                    
-                    # Ensure the response uses the actual CID from our DB for consistency
+
+                    # --- AUTO SUMMARY every 8 messages ---
+                    msg_count = db.query(Message).filter(
+                        Message.conversation_id == conversation.id
+                    ).count()
+                    if msg_count > 0 and msg_count % 8 == 0:
+                        try:
+                            all_msgs = db.query(Message).filter(
+                                Message.conversation_id == conversation.id
+                            ).order_by(Message.created_at.asc()).all()
+                            summary_lines = [
+                                f"{m.sender.upper()}: {m.content[:120]}"
+                                for m in all_msgs[-8:]
+                            ]
+                            summary = "\n".join(summary_lines)
+                            extra = conversation.extra_data or {}
+                            extra["conversation_summary"] = summary
+                            conversation.extra_data = extra
+                            db.commit()
+                            logger.info(f"📝 Auto-summary saved for conversation {conversation.id}")
+                        except Exception as summary_err:
+                            logger.error(f"Summary error: {summary_err}")
+
+                    # --- LEAD NOTIFICATION on handoff ---
+                    if response.should_handoff:
+                        try:
+                            extra = conversation.extra_data or {}
+                            await notification_service.notify_lead(
+                                conversation_id=conversation.id,
+                                identifier=request.identifier,
+                                channel=request.channel,
+                                last_message=request.message,
+                                intent_type=conversation.intent_type or "N/A",
+                                monetization_score=conversation.monetization_score or 0,
+                                handoff_reason=response.handoff_reason,
+                                conversation_summary=extra.get("conversation_summary"),
+                            )
+                        except Exception as notif_err:
+                            logger.error(f"Notification error: {notif_err}")
+
+                    # Ensure the response uses the actual CID from our DB
                     response.conversation_id = conversation.id
                 except Exception as db_err:
                     logger.error(f"⚠️ Persistence error (n8n was OK): {db_err}")

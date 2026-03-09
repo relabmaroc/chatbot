@@ -52,24 +52,49 @@ class N8NService:
                 data = response.json()
                 logger.info(f"Received JSON response from n8n: {data}")
                 
-                # Extract response message - supporting multiple possible formats
-                # format 1: {"response": "..."}
-                # format 2: {"message": "..."}
-                res_message = data.get("response") or data.get("message") or data.get("output") or "Pas de réponse de n8n."
-                
+                # Extract response message - multiple format support
+                res_message = (
+                    data.get("response") or data.get("message") or
+                    data.get("output") or data.get("text") or
+                    "Pas de réponse de n8n."
+                )
+
+                # Extract optional enrichment fields from n8n response
+                raw_intent = data.get("intent_type") or data.get("intent") or "unknown"
+                raw_score  = int(data.get("monetization_score") or data.get("score") or 0)
+                raw_lang   = data.get("language") or data.get("lang") or "fr"
+                should_handoff = bool(data.get("should_handoff", False))
+
+                # Safe mapping to enums
+                try:
+                    intent_type = IntentType(raw_intent)
+                except ValueError:
+                    intent_type = IntentType.UNKNOWN
+                try:
+                    lang = Language(raw_lang)
+                except ValueError:
+                    lang = Language.FRENCH
+
                 return ChatResponse(
                     message=res_message,
                     conversation_id=conversation_id or "n8n-session",
                     intent=Intent(
-                        type=IntentType.UNKNOWN, 
-                        confidence=1.0, 
-                        language=Language.FRENCH, 
-                        monetization_score=0
+                        type=intent_type,
+                        confidence=float(data.get("confidence", 1.0)),
+                        language=lang,
+                        monetization_score=raw_score,
+                        keywords=data.get("keywords", [])
                     ),
-                    should_handoff=data.get("should_handoff", False),
-                    metadata=data.get("metadata", {})
+                    should_handoff=should_handoff,
+                    handoff_reason=data.get("handoff_reason"),
+                    metadata={k: v for k, v in data.items() if k not in (
+                        "response", "message", "output", "text", "intent_type",
+                        "intent", "monetization_score", "score", "language",
+                        "lang", "should_handoff", "handoff_reason", "confidence", "keywords"
+                    )}
                 )
-                
+
+
         except Exception as e:
             logger.error(f"Error communicating with n8n: {e}", exc_info=True)
             return self._fallback_error(conversation_id, f"Erreur de communication avec n8n: {str(e)}")

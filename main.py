@@ -601,6 +601,9 @@ async def get_analytics_summary(db: Session = Depends(get_db)):
 # INSTAGRAM INTEGRATION
 # ==========================================
 
+# Webhook-level dedup: prevent Meta retry duplicates
+_processed_webhook_ids: set = set()
+
 from integrations.instagram import (
     verify_instagram_webhook,
     extract_instagram_messages,
@@ -634,6 +637,15 @@ async def process_instagram_task(data: dict, db: Session):
     Background task to process Instagram message without blocking Meta
     """
     try:
+        # Webhook dedup by message ID
+        msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
+        if msg_id in _processed_webhook_ids:
+            logger.warning(f"⚡ Duplicate Instagram webhook ignored: {msg_id}")
+            return
+        _processed_webhook_ids.add(msg_id)
+        if len(_processed_webhook_ids) > 1000:  # Prevent memory leak
+            _processed_webhook_ids.clear()
+
         # Create chat request
         chat_req = ChatRequest(
             message=data['text'],
@@ -696,6 +708,15 @@ async def process_whatsapp_task(data: dict, db: Session):
     Background task to process WhatsApp message
     """
     try:
+        # Webhook dedup by message ID
+        msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
+        if msg_id in _processed_webhook_ids:
+            logger.warning(f"⚡ Duplicate WhatsApp webhook ignored: {msg_id}")
+            return
+        _processed_webhook_ids.add(msg_id)
+        if len(_processed_webhook_ids) > 1000:
+            _processed_webhook_ids.clear()
+
         chat_req = ChatRequest(
             message=data['text'],
             identifier=data['sender_id'],
