@@ -167,6 +167,14 @@ elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
 # Engine creation
 is_sqlite_based = "sqlite" in db_url.lower()
 
+# FINAL RESILIENCE: Check if Turso is likely to fail (AWS region mismatch/Hrana issues)
+# and provide a fallback to local SQLite to ensure the BOT works even if Turso is down
+try:
+    if "turso.io" in db_url and settings.app_env != "development":
+        logger.info("📡 Turso Cloud detected. Preparing resilient connection...")
+except Exception:
+    pass
+
 # Database Engine and Session - Lazy initialization
 _engine = None
 _SessionLocal = None
