@@ -632,10 +632,14 @@ async def instagram_verification(request: Request):
     return await verify_instagram_webhook(request)
 
 
-async def process_instagram_task(data: dict, db: Session):
+async def process_instagram_task(data: dict):
     """
     Background task to process Instagram message without blocking Meta
     """
+    from models.database import get_session_class
+    
+    SessionLocal = get_session_class()
+    db = SessionLocal()
     try:
         # Webhook dedup by message ID
         msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
@@ -658,6 +662,7 @@ async def process_instagram_task(data: dict, db: Session):
         logger.info(f"🔄 Processing Instagram message from {data['sender_id']} in background")
         service = get_chat_service()
         response = await service.process_message(chat_req, db)
+
         
         # Send reply back to Instagram
         if response.message:
@@ -667,6 +672,8 @@ async def process_instagram_task(data: dict, db: Session):
             logger.info(f"🤫 Silent mode: No reply sent to Instagram user {data['sender_id']}")
     except Exception as e:
         logger.error(f"❌ Error in Instagram background task: {e}")
+    finally:
+        db.close()
 
 @app.post("/webhook/instagram")
 async def instagram_webhook(
@@ -686,7 +693,7 @@ async def instagram_webhook(
         
         for data in messages_data:
             # Launch background task and return 200 immediately
-            background_tasks.add_task(process_instagram_task, data, db)
+            background_tasks.add_task(process_instagram_task, data)
             
         return {"status": "ok"}
         
@@ -703,10 +710,14 @@ async def whatsapp_verification(request: Request):
     """Handle WhatsApp Webhook Verification"""
     return await verify_whatsapp_webhook(request)
 
-async def process_whatsapp_task(data: dict, db: Session):
+async def process_whatsapp_task(data: dict):
     """
     Background task to process WhatsApp message
     """
+    from models.database import get_session_class
+    
+    SessionLocal = get_session_class()
+    db = SessionLocal()
     try:
         # Webhook dedup by message ID
         msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
@@ -727,12 +738,15 @@ async def process_whatsapp_task(data: dict, db: Session):
         logger.info(f"🔄 Processing WhatsApp message from {data['sender_id']} in background")
         service = get_chat_service()
         response = await service.process_message(chat_req, db)
+
         
         if response.message:
             logger.info(f"🚀 [PYTHON-SEND] Sending reply to WhatsApp: {response.message[:50]}...")
             await send_whatsapp_message(data['sender_id'], response.message)
     except Exception as e:
         logger.error(f"❌ Error in WhatsApp background task: {e}")
+    finally:
+        db.close()
 
 @app.post("/webhook/whatsapp")
 async def whatsapp_webhook(
@@ -748,7 +762,7 @@ async def whatsapp_webhook(
         messages_data = extract_whatsapp_messages(payload)
         
         for data in messages_data:
-            background_tasks.add_task(process_whatsapp_task, data, db)
+            background_tasks.add_task(process_whatsapp_task, data)
             
         return {"status": "ok"}
     except Exception as e:
@@ -805,34 +819,58 @@ async def messenger_verification(request: Request):
     """Handle Messenger Webhook Verification"""
     return await verify_messenger_webhook(request)
 
+async def process_messenger_task(data: dict):
+    """
+    Background task to process Messenger messages
+    """
+    from models.database import get_session_class
+    
+    SessionLocal = get_session_class()
+    db = SessionLocal()
+    try:
+        # Webhook dedup
+        msg_id = data.get('message_id') or data.get('mid') or f"{data['sender_id']}:{data['text'][:20]}"
+        if msg_id in _processed_webhook_ids:
+            logger.warning(f"⚡ Duplicate Messenger webhook ignored: {msg_id}")
+            return
+        _processed_webhook_ids.add(msg_id)
+        if len(_processed_webhook_ids) > 1000:
+            _processed_webhook_ids.clear()
+
+        chat_req = ChatRequest(
+            message=data['text'],
+            identifier=data['sender_id'],
+            channel="messenger",
+            metadata=data['metadata']
+        )
+        
+        logger.info(f"🔄 Processing Messenger from {data['sender_id']} in background")
+        service = get_chat_service()
+        response = await service.process_message(chat_req, db)
+        
+        if response.message:
+            await send_messenger_message(data['sender_id'], response.message)
+        else:
+            logger.info(f"🤫 Silent mode: No reply sent to Messenger user {data['sender_id']}")
+    except Exception as e:
+        logger.error(f"❌ Error in Messenger background task: {e}")
+    finally:
+        db.close()
+
 @app.post("/webhook/messenger")
 async def messenger_webhook(
     request: Request,
-    db: Session = Depends(get_db)
+    background_tasks: BackgroundTasks
 ):
-    """Handle Incoming Messenger Messages"""
+    """Handle Incoming Messenger Messages (Async)"""
     try:
         payload = await request.json()
-        logger.info(f"📩 Received Messenger Webhook: {payload}")
+        logger.info(f"📩 Received Messenger Webhook (Async)")
         
         messages_data = extract_messenger_messages(payload)
         
         for data in messages_data:
-            chat_req = ChatRequest(
-                message=data['text'],
-                identifier=data['sender_id'],
-                channel="messenger",
-                metadata=data['metadata']
-            )
-            
-            logger.info(f"🔄 Processing Messenger from {data['sender_id']}")
-            service = get_chat_service()
-            response = await service.process_message(chat_req, db)
-            
-            if response.message:
-                await send_messenger_message(data['sender_id'], response.message)
-            else:
-                logger.info(f"🤫 Silent mode: No reply sent to Messenger user {data['sender_id']}")
+            background_tasks.add_task(process_messenger_task, data)
             
         return {"status": "ok"}
     except Exception as e:
