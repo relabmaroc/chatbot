@@ -10,6 +10,12 @@ from sqlalchemy.orm import Session
 from contextlib import asynccontextmanager
 import logging
 import os
+import sys
+import threading
+
+# Crucial: Early log to see if app even starts loading
+print(">> RELAB APP BOOTING: LOADING MODULES... <<", flush=True)
+
 log_level = os.environ.get("LOG_LEVEL", "INFO")
 logging.basicConfig(
     level=getattr(logging, log_level),
@@ -29,15 +35,24 @@ from services.chat_service import chat_service
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
-    logger.info("Starting Relab Chatbot Backend...")
-    try:
-        init_db()
-        logger.info("✅ Database initialized successfully")
-    except Exception as e:
-        logger.error(f"⚠️ Database initialization failed: {e}. App will start but DB features may fail.")
+    logger.info("🚀 Starting Relab Chatbot Backend (Resilient Mode)...")
+    
+    # Run DB init in a separate thread to NOT block healthcheck
+    # if Turso connection is slow or hanging
+    def run_init():
+        try:
+            logger.info("⏳ Initializing database in background...")
+            init_db()
+            logger.info("✅ Database initialized successfully in background")
+        except Exception as e:
+            logger.error(f"❌ Background database initialization failed: {e}")
+
+    db_thread = threading.Thread(target=run_init, daemon=True)
+    db_thread.start()
+    
     yield
     # Shutdown
-    logger.info("Shutting down...")
+    logger.info("Stopping...")
 
 
 # Create FastAPI app

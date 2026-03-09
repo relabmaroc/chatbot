@@ -170,7 +170,6 @@ elif db_url.startswith(("libsql://", "https://")) and "turso.io" in db_url:
 
 # Engine creation
 is_sqlite_based = "sqlite" in db_url.lower()
-print(f"DEBUG: FINAL DB_URL USED IS: {db_url.split('authToken=')[0]}authToken=***")
 
 engine = create_engine(
     db_url,
